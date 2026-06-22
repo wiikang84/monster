@@ -1,0 +1,43 @@
+# ── Unity 생성물 (커밋 금지, 용량/충돌 방지) ──
+# 패턴에 앞 슬래시를 안 붙여 game/ 하위까지 매칭됨
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+
+# 빌드 산출물 (WebGL 등)
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# IDE / 자동생성
+.vs/
+.idea/
+.vscode/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 크래시/로그
+sysinfo.txt
+crashlytics-build.properties
