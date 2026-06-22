@@ -14,10 +14,18 @@
 ## 폴더 구조
 ```
 tower/
-├── CLAUDE.md      ← 이 파일 (결정·진행로그·실행법)
-├── 기획서.md       ← GDD (게임 설계)
-└── game/          ← Unity 프로젝트 (예정)
+├── CLAUDE.md          ← 이 파일 (결정·진행로그·실행법)
+├── 기획서.md           ← GDD (게임 설계)
+├── design_mockup.html ← 레벨 배치 목업(그레이박스) 이미지
+└── game/              ← Unity 프로젝트 (★Unity Hub에서 이 폴더를 열 것)
+    └── Assets/
+        ├── Scripts/   ← 게임 코드 (GameManager/Enemy/Tower/Projectile/TowerSlot)
+        ├── Art/kenney_tower-defense-kit/  ← Kenney TD 킷(FBX 160, CC0). UFO/SF 테마
+        └── Audio/      ← Kenney 오디오 7팩(CC0): digital/impact/interface/music-jingles/rpg/sci-fi/ui
 ```
+> ⚠️ Unity 작업은 **반드시 `C:\Users\fathe\dy-openwork\tower\game`** 프로젝트를 열 것.
+>   (형님 Unity 작업폴더가 `Desktop\unity\`라 헷갈리기 쉬움 — DOTween을 실수로 `Desktop\unity\monster`에 임포트한 적 있음)
+> ⚠️ DOTween(선택 도구)은 아직 tower/game에 없음 → 필요 시 tower/game 열고 Package Manager ▸ My Assets ▸ DOTween Import + Setup.
 
 ## 실행 방법 (예정 — 프로젝트 생성 후 갱신)
 - Unity Hub → `tower/game` 프로젝트 열기 → ▶(Play)로 에디터에서 테스트

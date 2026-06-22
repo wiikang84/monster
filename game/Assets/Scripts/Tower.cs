@@ -1,20 +1,18 @@
 using UnityEngine;
 
-// 타워: 사거리 내 가장 가까운 적을 일정 간격으로 자동 공격(발사체)
+// 타워: 사거리 내 가장 가까운 적을 향해 무기를 돌리고, 일정 간격으로 탄(모델) 발사
 public class Tower : MonoBehaviour
 {
-    public float range = 5f;
-    public float fireRate = 1f;   // 초당 1발
+    public Transform weapon;          // 회전시킬 무기 모델
+    public float range = 7f;
+    public float fireRate = 0.9f;
+    public float projectileSpeed = 16f;
     public int damage = 25;
-    public float projectileSpeed = 14f;
 
-    float timer = 0f;
+    float timer;
 
     void Update()
     {
-        timer -= Time.deltaTime;
-        if (timer > 0) return;
-
         var gm = GameManager.Instance;
         if (gm == null) return;
 
@@ -27,23 +25,24 @@ public class Tower : MonoBehaviour
             if (d <= best) { best = d; target = e; }
         }
 
-        if (target != null)
+        if (target != null && weapon != null)
         {
-            timer = fireRate;
-            Shoot(target);
+            Vector3 look = target.transform.position; look.y = weapon.position.y;
+            Vector3 dir = look - weapon.position;
+            if (dir.sqrMagnitude > 0.001f)
+                weapon.rotation = Quaternion.Slerp(weapon.rotation, Quaternion.LookRotation(dir), 12f * Time.deltaTime);
         }
+
+        timer -= Time.deltaTime;
+        if (timer > 0) return;
+        if (target != null) { timer = fireRate; Shoot(target); }
     }
 
     void Shoot(Enemy target)
     {
-        var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        Destroy(go.GetComponent<Collider>());
-        var root = GameManager.Instance.SpawnedRoot;
-        if (root != null) go.transform.SetParent(root);
-        go.transform.position = transform.position + Vector3.up * 0.7f;
-        go.transform.localScale = Vector3.one * 0.3f;
-        GameManager.SetColor(go, Color.white);
-
+        Vector3 from = (weapon != null ? weapon.position : transform.position) + Vector3.up * 0.2f;
+        var go = GameManager.Instance.SpawnModel("weapon-ammo-bullet", from);
+        go.transform.localScale *= 1.2f;
         var p = go.AddComponent<Projectile>();
         p.Init(target, projectileSpeed, damage);
     }
