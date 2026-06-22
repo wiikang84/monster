@@ -23,10 +23,20 @@ tower/
 - Unity Hub → `tower/game` 프로젝트 열기 → ▶(Play)로 에디터에서 테스트
 - WebGL 빌드: (모듈 설치 필요 시 안내 예정)
 
-## 에셋 라이선스 (다운로드 시 출처·날짜 기록할 것)
-| 에셋 | 라이선스 | URL | 받은 날짜 |
-|---|---|---|---|
-| Kenney Tower Defense Kit (3D, 160개) | CC0 (표기 불필요) | https://kenney.nl/assets/tower-defense-kit | (예정) |
+## 에셋 다운로드 목록 / 라이선스 (받으면 날짜 기록)
+> 원칙: 아트는 **Kenney로 스타일 통일**. 사실적 에셋과 섞지 않음. 무료면 자유롭게 받아도 됨.
+> 목업(그레이박스)은 에셋 없이도 돌아감 → 에셋은 "아트 패스" 단계에서 투입.
+
+| 구분 | 에셋 | 라이선스 | 링크 | 받은날 |
+|---|---|---|---|---|
+| ★핵심 아트 | Kenney Tower Defense Kit (3D, 160) | CC0 | https://kenney.nl/assets/tower-defense-kit | (예정) |
+| 사운드 | Kenney 오디오 (Interface/Impact Sounds 등) | CC0 | https://kenney.nl/assets/category:Audio | (예정) |
+| UI | Kenney UI Pack | CC0 | https://kenney.nl/assets/ui-pack | (예정) |
+| 도구(선택) | DOTween (HOTween v2) — 애니/UI 트윈 | 무료 | https://assetstore.unity.com/packages/tools/animation/dotween-hotween-v2-27676 | (예정) |
+| (참고) | Unity Asset Store 무료 전체 | 각 EULA | https://assetstore.unity.com/top-assets/top-free | - |
+
+- Kenney = zip 다운로드 → 압축 풀어 `game/Assets/` 에 드래그.
+- Unity Asset Store = "내 에셋에 추가" → Unity의 Package Manager(My Assets)에서 Import.
 
 ## 결정 로그
 - **2026-06-22**
@@ -37,8 +47,16 @@ tower/
   - Kenney Tower Defense Kit = CC0/무료/3D/160개 실제 확인 완료.
   - **목업 먼저 보고 Firebase 배포 여부 결정**하기로 함(현재 미정).
 
+## 백업 (GitHub)
+- **repo: `wiikang84/monster`** (기존 monster repo를 재활용 — 형님 지시 2026-06-22 "monster 내용 다 지우고 tower로 엎어써, 새 repo 안 만듦").
+- 즉 repo 이름은 `monster`지만 내용은 tower. 원격 origin = https://github.com/wiikang84/monster.git
+- 푸시: `cd tower; git add -A; git commit; git push origin main` (초기 1회는 force-push로 monster 내용 덮어씀).
+- Firebase(WebGL 호스팅)는 **목업 승인 후** 진행 예정(현재 빌드 없음).
+
 ## 진행 로그
-- 2026-06-22: 폴더 생성 + 기획서/프로젝트메모 작성. (다음: Unity 프로젝트 생성 → 그레이박스 프로토타입)
+- 2026-06-22: 폴더 생성 + 기획서/프로젝트메모 작성.
+- 2026-06-22: Unity 6 프로젝트 생성(game/) + 그레이박스 프로토타입 스크립트 5종 작성(GameManager/Enemy/Tower/Projectile/TowerSlot), 배치모드 컴파일 에러 0 확인.
+- 2026-06-22: git init + wiikang84/monster repo에 force-push로 백업 시작.
 
 ## 작업 규칙
 - 코드 우선(code-first): 런타임 C#로 구성해 에디터 수작업 최소화.
