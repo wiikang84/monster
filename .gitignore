@@ -10,6 +10,9 @@
 [Mm]emoryCaptures/
 [Rr]ecordings/
 
+# WebGL 빌드 산출물 (재빌드 가능)
+webgl-build/
+
 # 빌드 산출물 (WebGL 등)
 *.apk
 *.aab

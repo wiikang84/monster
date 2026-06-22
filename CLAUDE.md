@@ -59,7 +59,10 @@ tower/
 - **repo: `wiikang84/monster`** (기존 monster repo를 재활용 — 형님 지시 2026-06-22 "monster 내용 다 지우고 tower로 엎어써, 새 repo 안 만듦").
 - 즉 repo 이름은 `monster`지만 내용은 tower. 원격 origin = https://github.com/wiikang84/monster.git
 - 푸시: `cd tower; git add -A; git commit; git push origin main` (초기 1회는 force-push로 monster 내용 덮어씀).
-- Firebase(WebGL 호스팅)는 **목업 승인 후** 진행 예정(현재 빌드 없음).
+- **라이브(WebGL) URL: https://wiitower.web.app** (Firebase 프로젝트 `wiigame-448c7`, 호스팅 사이트 `wiitower`)
+  - 빌드: Unity `-executeMethod BuildScript.BuildWebGL` (압축 Disabled) → 산출물 `tower/webgl-build/`
+  - 재배포: `cd tower/webgl-build; npx firebase deploy --only hosting --project wiigame-448c7`
+  - webgl-build/는 빌드 산출물이라 git 제외
 
 ## 진행 로그
 - 2026-06-22: 폴더 생성 + 기획서/프로젝트메모 작성.
