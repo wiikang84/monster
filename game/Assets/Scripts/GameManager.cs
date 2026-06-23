@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviour
     float cell = 2f;
     float hover;
     Material colormapMat;
+    Material slotMat;   // 타워 설치 가능 타일 강조용 (한눈에 보이도록 별도 색)
+    Font uiFont;        // 한글 UI 폰트(Pretendard). WebGL 기본 폰트엔 한글 글리프가 없어 필수.
     Transform envRoot, spawnedRoot;
 
     readonly List<Vector2Int> corners = new List<Vector2Int>
@@ -60,6 +62,16 @@ public class GameManager : MonoBehaviour
         colormapMat = new Material(Shader.Find("Standard"));
         if (tex) colormapMat.mainTexture = tex;
         colormapMat.SetFloat("_Glossiness", 0f);
+
+        // 설치 타일은 파란색으로 또렷하게 (어디에 지을 수 있는지 보이도록)
+        slotMat = new Material(Shader.Find("Standard"));
+        slotMat.color = new Color(0.25f, 0.55f, 1f);
+        slotMat.SetFloat("_Glossiness", 0f);
+        slotMat.EnableKeyword("_EMISSION");
+        slotMat.SetColor("_EmissionColor", new Color(0.1f, 0.3f, 0.7f));
+
+        // 한글 폰트 로드 (Assets/Resources/UIFont.ttf = Pretendard, 동적폰트라 WebGL에서도 렌더됨)
+        uiFont = Resources.Load<Font>("UIFont");
 
         cell = MeasureCell();
         hover = cell * 0.55f;
@@ -161,6 +173,7 @@ public class GameManager : MonoBehaviour
         {
             if (pathSet.Contains(sc)) continue;
             var go = Make("selection-a", Center(sc.x, sc.y) + Vector3.up * 0.03f, envRoot);
+            foreach (var r in go.GetComponentsInChildren<Renderer>()) r.sharedMaterial = slotMat; // 파란 강조색
             var bc = go.AddComponent<BoxCollider>();
             bc.center = new Vector3(0, 0.3f, 0);
             bc.size = new Vector3(cell * 0.9f, 0.6f, cell * 0.9f);
@@ -199,7 +212,7 @@ public class GameManager : MonoBehaviour
         var baseGo = Make("tower-round-base", p, spawnedRoot);
         float h = HeightOf(baseGo);
         var weapon = Make("weapon-turret", p + Vector3.up * h, baseGo.transform);
-        var t = baseGo.AddComponent<Tower>();
+        var t = baseGo.AddComponent<TowerUnit>();
         t.weapon = weapon.transform;
         t.range = cell * 3.5f;
         t.projectileSpeed = cell * 8f;
@@ -246,9 +259,13 @@ public class GameManager : MonoBehaviour
 
     void OnGUI()
     {
+        // 한글 폰트를 모든 GUI 기본 폰트로 지정 (이 줄이 없으면 WebGL에서 한글이 안 보임)
+        if (uiFont != null) GUI.skin.font = uiFont;
+
         var box = new GUIStyle(GUI.skin.box) { fontSize = 18, alignment = TextAnchor.MiddleLeft, padding = new RectOffset(12, 12, 8, 8) };
         var big = new GUIStyle(GUI.skin.label) { fontSize = 36, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, normal = { textColor = Color.white } };
         var btn = new GUIStyle(GUI.skin.button) { fontSize = 20, fontStyle = FontStyle.Bold };
+        if (uiFont != null) { box.font = uiFont; big.font = uiFont; btn.font = uiFont; } // 커스텀 스타일에도 한글 폰트 보장
 
         GUI.Box(new Rect(10, 10, 360, 44), $"  골드 {gold}      라이프 {lives}      웨이브 {waveIndex + 1}/{waves.Count}", box);
         GUI.Label(new Rect(10, 60, 600, 24), $"  파란 선택타일을 클릭해 타워 설치 (비용 {TOWER_COST}골드)");

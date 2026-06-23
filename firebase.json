@@ -1,0 +1,7 @@
+{
+  "hosting": {
+    "site": "wiitower",
+    "public": "webgl-build",
+    "ignore": ["firebase.json", "**/.*"]
+  }
+}

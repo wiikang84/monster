@@ -1,7 +1,8 @@
 using UnityEngine;
 
 // 타워: 사거리 내 가장 가까운 적을 향해 무기를 돌리고, 일정 간격으로 탄(모델) 발사
-public class Tower : MonoBehaviour
+// (클래스명 Tower → TowerUnit 개명: 루트 네임스페이스 Tower 와의 충돌 회피. 2026-06-23 M0)
+public class TowerUnit : MonoBehaviour
 {
     public Transform weapon;          // 회전시킬 무기 모델
     public float range = 7f;

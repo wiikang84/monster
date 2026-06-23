@@ -44,3 +44,10 @@ Thumbs.db
 # 크래시/로그
 sysinfo.txt
 crashlytics-build.properties
+
+# 배포/빌드 임시
+.firebase/
+_build.log
+_probe*.mjs
+_verify*.mjs
+_*.png
