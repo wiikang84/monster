@@ -1,0 +1,34 @@
+{
+  "id": "stage_01",
+  "displayName": "1. 첫 방어선",
+  "grid": [
+    ".....o....",
+    "..#######G",
+    "..#o......",
+    "..#o.o....",
+    "..#######.",
+    ".......o#.",
+    "..o..o.o#.",
+    "S########.",
+    "..........",
+    ".........."
+  ],
+  "startGold": 120,
+  "startLives": 10,
+  "autoNextWave": false,
+  "allowedTowers": ["arrow"],
+  "starThresholds": [60, 90],
+  "tutorialId": "basic_intro",
+  "waves": [
+    { "restBefore": 0, "groups": [
+      { "enemyId": "ufo_basic", "count": 5, "interval": 0.8, "startDelay": 0, "pathIndex": 0 }
+    ] },
+    { "restBefore": 3, "groups": [
+      { "enemyId": "ufo_basic", "count": 8, "interval": 0.8, "startDelay": 0, "pathIndex": 0 }
+    ] },
+    { "restBefore": 3, "groups": [
+      { "enemyId": "ufo_basic", "count": 6, "interval": 0.8, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_fast",  "count": 4, "interval": 0.8, "startDelay": 5, "pathIndex": 0 }
+    ] }
+  ]
+}

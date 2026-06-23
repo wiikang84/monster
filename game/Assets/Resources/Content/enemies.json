@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "ufo_basic",
+      "displayName": "기본 UFO",
+      "model": "enemy-ufo-a",
+      "hp": 60,
+      "speed": 1.4,
+      "reward": 12,
+      "livesCost": 1
+    },
+    {
+      "id": "ufo_fast",
+      "displayName": "고속 UFO",
+      "model": "enemy-ufo-b",
+      "hp": 35,
+      "speed": 2.4,
+      "reward": 12,
+      "livesCost": 1
+    }
+  ]
+}

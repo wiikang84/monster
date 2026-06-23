@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "arrow",
+      "displayName": "화살탑",
+      "baseModel": "tower-round-base",
+      "weaponModel": "weapon-turret",
+      "projectileModel": "weapon-ammo-bullet",
+      "cost": 50,
+      "range": 7.0,
+      "fireRate": 0.9,
+      "damage": 25,
+      "projectileSpeed": 16.0,
+      "damageType": "Single",
+      "targeting": "Nearest",
+      "shootSound": "laser1",
+      "upgrades": [
+        { "cost": 40, "damage": 15, "range": 1.0, "fireRate": -0.1, "projectileSpeed": 2.0 }
+      ]
+    }
+  ]
+}
