@@ -9,6 +9,7 @@ namespace Tower.Data
     {
         public string id;
         public string displayName;
+        public string desc;          // 빌드 메뉴 카드 한줄 설명
 
         // 외형 (Resources/Models 키)
         public string baseModel;

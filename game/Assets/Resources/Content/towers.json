@@ -1,7 +1,7 @@
 {
   "items": [
     {
-      "id": "arrow", "displayName": "화살탑",
+      "id": "arrow", "displayName": "화살탑", "desc": "단일 표적 · 빠른 연사",
       "baseModel": "tower-round-base", "weaponModel": "weapon-turret", "projectileModel": "weapon-ammo-bullet",
       "cost": 50, "range": 7.0, "fireRate": 0.9, "damage": 25, "projectileSpeed": 16.0,
       "damageType": "Single", "targeting": "Nearest", "shootSound": "laserSmall_000",
@@ -11,7 +11,7 @@
       ]
     },
     {
-      "id": "cannon", "displayName": "포탑",
+      "id": "cannon", "displayName": "포탑", "desc": "광역 폭발 · 군집에 강함",
       "baseModel": "tower-square-bottom-a", "weaponModel": "weapon-cannon", "projectileModel": "weapon-ammo-cannonball",
       "cost": 90, "range": 6.5, "fireRate": 0.55, "damage": 40, "projectileSpeed": 12.0,
       "damageType": "Splash", "splashRadius": 2.2, "splashFalloff": 0.7,
@@ -22,7 +22,7 @@
       ]
     },
     {
-      "id": "frost", "displayName": "냉각탑",
+      "id": "frost", "displayName": "냉각탑", "desc": "둔화 · 고속 적 제어",
       "baseModel": "tower-round-base", "weaponModel": "weapon-ballista", "projectileModel": "weapon-ammo-arrow",
       "tint": "#4FC3F7",
       "cost": 70, "range": 7.0, "fireRate": 1.0, "damage": 8, "projectileSpeed": 18.0,

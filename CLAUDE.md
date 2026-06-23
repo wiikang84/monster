@@ -68,6 +68,11 @@ tower/
 - 2026-06-22: 폴더 생성 + 기획서/프로젝트메모 작성.
 - 2026-06-22: Unity 6 프로젝트 생성(game/) + 그레이박스 프로토타입 스크립트 5종 작성(GameManager/Enemy/Tower/Projectile/TowerSlot), 배치모드 컴파일 에러 0 확인.
 - 2026-06-22: git init + wiikang84/monster repo에 force-push로 백업 시작.
+- 2026-06-23: **전면 재설계.** 기획 6종 작성(기획/00~05 + 06_친절UX, 07은 보류). 한글 UI 폰트(Pretendard) 적용. 아키텍처 데이터화: M0 코어 골격(ServiceLocator/GameEvents), M1 콘텐츠 JSON화(JsonUtility), M2 맵=ASCII그리드→BFS 경로 자동생성. 클래스 Tower→TowerUnit 개명.
+- 2026-06-23: **깊이 업데이트.** 타워 3종(arrow/cannon/frost)×3티어 업그레이드·판매(환불70%), 적 5종(틴트/스케일/장갑/슬로우), 스테이지 3개. 타워선택→사거리원+업그레이드/판매 패널, 타게팅 4종, 광역/슬로우/치명타. Kenney 효과음 17종. 손맛(데미지숫자·골드팝업·피격플래시·비네트).
+- 2026-06-23: **친절 UX + 그래픽 폴리시.** 모든 스테이지 3종 타워 선택(빌드 메뉴 카드+설명+사거리 미리보기), PC 호버 미리보기 링, 업그레이드 발견성(⬆ 표식·상시 가이드 문구·첫설치 힌트), 호버 툴팁. 그래픽: 소프트 그림자·따뜻한 조명·삼색 환경광·안개·MSAA·환경 장식(나무/바위/크리스탈 산점). ⚠️ 그래픽 한계 명시: 무료 Kenney 저폴리 톤은 유지(커스텀 3D 불가).
+- 라이브: https://wiitower.web.app (재배포: cd tower; npx firebase-tools deploy --only hosting --project wiigame-448c7)
+- ⚠️ WebGL 함정: OnGUI에서 `GUI.skin.font`/`GUI.skin.box` 직접 사용 시 NRE → 폰트는 개별 GUIStyle에, 패널 배경은 DrawTexture로. JSON은 JsonUtility(Newtonsoft 금지, +21MB).
 
 ## 작업 규칙
 - 코드 우선(code-first): 런타임 C#로 구성해 에디터 수작업 최소화.

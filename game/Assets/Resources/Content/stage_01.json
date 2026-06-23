@@ -16,7 +16,7 @@
   "startGold": 120,
   "startLives": 10,
   "autoNextWave": false,
-  "allowedTowers": ["arrow"],
+  "allowedTowers": ["arrow", "cannon", "frost"],
   "starThresholds": [60, 90],
   "tutorialId": "basic_intro",
   "waves": [

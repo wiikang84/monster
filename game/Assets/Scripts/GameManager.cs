@@ -45,9 +45,13 @@ public class GameManager : MonoBehaviour
     // ── 선택/빌드 UI ──
     TowerUnit selected;
     TowerSlot pendingSlot;        // 빌드 메뉴가 열린 슬롯
-    Tower.Gameplay.RangeRing selRing;
+    TowerSlot hoveredSlot;        // 마우스가 올라간 빈 슬롯(PC 호버)
+    Tower.Gameplay.RangeRing selRing;     // 선택 타워(노랑)
+    Tower.Gameplay.RangeRing previewRing; // 설치 미리보기(시안)
     Rect panelRect, menuRect, startBtnRect;
     float vignetteUntil = 0f;
+    bool firstBuildDone = false;
+    string hintText = ""; float hintUntil = 0f;
 
     // ── 떠다니는 텍스트(데미지/골드/레벨업) ──
     struct FloatText { public Vector3 world; public string text; public Color color; public float born, life, size; }
@@ -98,8 +102,37 @@ public class GameManager : MonoBehaviour
         else { Debug.LogError("[GameManager] stage_01 로드 실패"); gold = 120; lives = 10; }
 
         selRing = Tower.Gameplay.RangeRing.Create(new Color(1f, 0.82f, 0.25f, 1f), 0.06f * cell);
+        previewRing = Tower.Gameplay.RangeRing.Create(new Color(0.21f, 0.77f, 1f, 1f), 0.06f * cell);
 
+        SetupGraphics();
         BuildEnvironment();
+    }
+
+    void SetupGraphics()
+    {
+        QualitySettings.antiAliasing = 4;               // MSAA — 계단현상 완화
+        QualitySettings.shadows = ShadowQuality.All;
+        QualitySettings.shadowResolution = ShadowResolution.High;
+        QualitySettings.shadowDistance = Mathf.Max(60f, COLS * cell * 2.2f);
+        QualitySettings.pixelLightCount = 3;
+
+        // 부드러운 환경광(삼색)
+        RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
+        RenderSettings.ambientSkyColor = new Color(0.66f, 0.74f, 0.86f);
+        RenderSettings.ambientEquatorColor = new Color(0.56f, 0.60f, 0.55f);
+        RenderSettings.ambientGroundColor = new Color(0.30f, 0.32f, 0.28f);
+
+        // 안개로 깊이감
+        float board = COLS * cell;
+        Color bg = new Color(0.55f, 0.70f, 0.86f);
+        RenderSettings.fog = true;
+        RenderSettings.fogMode = FogMode.Linear;
+        RenderSettings.fogColor = bg;
+        RenderSettings.fogStartDistance = board * 1.0f;
+        RenderSettings.fogEndDistance = board * 2.8f;
+
+        // 스카이박스는 칙칙해서 사용 안 함 → 깔끔한 단색 하늘 + 안개로 깊이감.
+        RenderSettings.skybox = null;
     }
 
     float MeasureCell()
@@ -152,15 +185,19 @@ public class GameManager : MonoBehaviour
         Vector3 center = new Vector3((COLS - 1) * 0.5f * cell, 0, (ROWS - 1) * 0.5f * cell);
         cam.transform.position = center + new Vector3(0, board * 1.15f, -board * 0.62f);
         cam.transform.LookAt(center + Vector3.up * cell * 0.3f);
-        cam.fieldOfView = 55;
-        cam.clearFlags = CameraClearFlags.SolidColor;
-        cam.backgroundColor = new Color(0.46f, 0.62f, 0.78f);
+        cam.fieldOfView = 52;
+        cam.allowMSAA = true;
+        cam.clearFlags = RenderSettings.skybox != null ? CameraClearFlags.Skybox : CameraClearFlags.SolidColor;
+        cam.backgroundColor = new Color(0.55f, 0.70f, 0.86f);
 
         if (FindFirstObjectByType<Light>() == null)
         {
             var l = new GameObject("Sun").AddComponent<Light>();
-            l.type = LightType.Directional; l.intensity = 1.15f;
-            l.transform.rotation = Quaternion.Euler(50, -40, 0);
+            l.type = LightType.Directional; l.intensity = 1.05f;
+            l.color = new Color(1f, 0.96f, 0.88f);            // 따뜻한 햇빛
+            l.transform.rotation = Quaternion.Euler(48, -38, 0);
+            l.shadows = LightShadows.Soft;                     // 부드러운 그림자
+            l.shadowStrength = 0.55f;
         }
 
         for (int r = 0; r < ROWS; r++)
@@ -183,6 +220,28 @@ public class GameManager : MonoBehaviour
             bc.size = new Vector3(cell * 0.9f, 0.6f, cell * 0.9f);
             slots.Add(go.AddComponent<TowerSlot>());
         }
+
+        ScatterDecorations();
+    }
+
+    // 빈 잔디 칸에 나무/바위/크리스탈을 결정론적으로 산점 → 디오라마 느낌 (콜라이더 없음, 클릭 방해 안 함)
+    void ScatterDecorations()
+    {
+        string[] deco = { "detail-tree", "detail-tree-large", "detail-rocks", "detail-crystal" };
+        for (int r = 0; r < ROWS; r++)
+            for (int c = 0; c < COLS; c++)
+            {
+                if (map.At(c, r) != Tower.Map.CellType.Empty) continue;
+                uint h = (uint)((c * 73856093) ^ (r * 19349663) ^ 0x5f3759df);
+                if (h % 100u >= 26u) continue;                 // ~26% 칸에만(과밀 방지)
+                string m = deco[(h / 100u) % 4u];
+                float ox = ((h % 7u) / 7f - 0.5f) * cell * 0.4f;
+                float oz = ((h / 7u % 7u) / 7f - 0.5f) * cell * 0.4f;
+                var d = Make(m, Center(c, r) + new Vector3(ox, 0.02f, oz), envRoot);
+                d.transform.rotation = Quaternion.Euler(0, h % 360u, 0);
+                float s = 0.7f + (h % 30u) / 90f;
+                d.transform.localScale *= s;
+            }
     }
 
     // ───────────────────────── 입력 ─────────────────────────
@@ -193,7 +252,9 @@ public class GameManager : MonoBehaviour
             if (waveIndex >= stage.waves.Count - 1) { state = State.Won; Tower.Audio.Sfx.I?.Play("jingles_NES13"); }
             else { waveIndex++; state = State.Ready; allSpawned = false; }
         }
-        if (state == State.Won || state == State.Lost) return;
+        if (state == State.Won || state == State.Lost) { previewRing.Hide(); return; }
+
+        UpdateHover();
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -206,6 +267,30 @@ public class GameManager : MonoBehaviour
 
             HandleWorldClick();
         }
+    }
+
+    // PC 호버: 빈 슬롯 위에 오면 시안 사거리 미리보기. (빌드 메뉴 열렸을 땐 메뉴가 미리보기 제어)
+    void UpdateHover()
+    {
+        if (pendingSlot != null) return;
+        Vector2 g = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
+        bool overUI = (selected != null && panelRect.Contains(g)) || (state == State.Ready && startBtnRect.Contains(g));
+        if (!overUI && allowedTowers.Count > 0 && Camera.main != null)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit, 500f))
+            {
+                var slot = hit.collider.GetComponentInParent<TowerSlot>();
+                if (slot != null && !slot.Occupied)
+                {
+                    hoveredSlot = slot;
+                    previewRing.ShowAt(slot.transform.position, allowedTowers[0].range);
+                    return;
+                }
+            }
+        }
+        hoveredSlot = null;
+        previewRing.Hide();
     }
 
     void HandleWorldClick()
@@ -246,7 +331,9 @@ public class GameManager : MonoBehaviour
         gold -= def.cost;
         BuildTower(def, slot);
         pendingSlot = null;
+        previewRing.Hide();
         Tower.Audio.Sfx.I?.Play("confirmation_001", 0.7f);
+        if (!firstBuildDone) { firstBuildDone = true; hintText = "포탑을 클릭하면 업그레이드 · 판매!"; hintUntil = Time.time + 5f; }
         return true;
     }
 
@@ -411,9 +498,13 @@ public class GameManager : MonoBehaviour
             if (state == State.Ready)
                 if (GUI.Button(startBtnRect, $"웨이브 {waveIndex + 1} 시작 ▶", btn)) { Tower.Audio.Sfx.I?.Play("click1", 0.6f); StartWave(); }
 
+            DrawGuidance(label);
+            DrawUpgradeIndicators();
             DrawFloatingTexts();
+            DrawHoverTooltip(label);
             DrawBuildMenu(label, btn);
             DrawTowerPanel(label, btn);
+            DrawHint(label);
             DrawVignette();
             DrawEndScreen(big, btn);
         }
@@ -424,23 +515,103 @@ public class GameManager : MonoBehaviour
     {
         if (pendingSlot == null) { menuRect = new Rect(-1, -1, 0, 0); return; }
         Vector3 sp = Camera.main.WorldToScreenPoint(pendingSlot.transform.position);
-        float w = 180, rowH = 40, h = 30 + allowedTowers.Count * rowH;
+        float w = 230, rowH = 52, head = 26;
+        float h = head + allowedTowers.Count * rowH + 6;
         float x = Mathf.Clamp(sp.x - w / 2, 4, Screen.width - w - 4);
         float y = Mathf.Clamp(Screen.height - sp.y - h - 10, 4, Screen.height - h - 4);
         menuRect = new Rect(x, y, w, h);
         var _bg = GUI.color;
-        GUI.color = new Color(0.10f, 0.12f, 0.16f, 0.92f);
+        GUI.color = new Color(0.10f, 0.12f, 0.16f, 0.94f);
         GUI.DrawTexture(menuRect, Texture2D.whiteTexture);
         GUI.color = _bg;
-        GUI.Label(new Rect(x + 8, y + 4, w - 16, 20), "타워 건설", label);
+        GUI.Label(new Rect(x + 10, y + 5, w - 16, 18), "포탑 건설 — 선택", label);
+
+        TowerDef previewTower = allowedTowers.Count > 0 ? allowedTowers[0] : null;
+        Vector2 mouse = Event.current != null ? Event.current.mousePosition : new Vector2(-1, -1);
+
         for (int i = 0; i < allowedTowers.Count; i++)
         {
             var d = allowedTowers[i];
-            var r = new Rect(x + 8, y + 26 + i * rowH, w - 16, rowH - 6);
-            GUI.enabled = gold >= d.cost;
-            if (GUI.Button(r, $"{d.displayName}  {d.cost}G", btn)) TryBuild(d, pendingSlot);
+            var r = new Rect(x + 8, y + head + i * rowH, w - 16, rowH - 6);
+            if (r.Contains(mouse)) previewTower = d;
+            bool afford = gold >= d.cost;
+            GUI.enabled = afford;
+            string cardText = $"{d.displayName}   {d.cost}G\n{d.desc}";
+            if (GUI.Button(r, cardText, btn)) { TryBuild(d, pendingSlot); GUI.enabled = true; return; }
             GUI.enabled = true;
         }
+
+        // 메뉴에서 가리키는 타워의 사거리를 슬롯에 미리보기(시안)
+        if (previewTower != null) previewRing.ShowAt(pendingSlot.transform.position, previewTower.range);
+    }
+
+    // 상태별 1줄 가이드(불친절 해소)
+    void DrawGuidance(GUIStyle label)
+    {
+        if (state == State.Won || state == State.Lost) return;
+        string guide;
+        if (state == State.InWave) guide = "적을 막으세요!  포탑을 클릭하면 강화할 수 있어요.";
+        else
+        {
+            bool hasTower = false, canUp = false;
+            foreach (var s in slots)
+                if (s.Occupied && s.Tower != null) { hasTower = true; if (s.Tower.CanUpgrade && gold >= s.Tower.NextUpgrade.cost) canUp = true; }
+            int cheapest = int.MaxValue;
+            foreach (var d in allowedTowers) if (d.cost < cheapest) cheapest = d.cost;
+            if (!hasTower && gold >= cheapest) guide = "반짝이는 칸을 눌러 포탑을 지으세요.";
+            else if (canUp) guide = "포탑을 클릭해 업그레이드하세요!";
+            else guide = "준비되면 ‘웨이브 시작’을 누르세요.";
+        }
+        var st = new GUIStyle(label) { fontSize = 15 };
+        st.normal.textColor = new Color(1f, 1f, 1f, 0.92f);
+        GUI.Label(new Rect(12, 120, 600, 22), guide, st);
+    }
+
+    // 업그레이드 가능+골드 충분 타워 위에 깜빡이는 ⬆
+    void DrawUpgradeIndicators()
+    {
+        if (state == State.Won || state == State.Lost || Camera.main == null) return;
+        float a = 0.5f + 0.5f * Mathf.PingPong(Time.time * 2f, 1f);
+        var st = new GUIStyle { fontSize = 24, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+        if (uiFont != null) st.font = uiFont;
+        st.normal.textColor = new Color(1f, 0.85f, 0.2f, a);
+        foreach (var s in slots)
+        {
+            if (s == null || !s.Occupied || s.Tower == null) continue;
+            if (s.Tower == selected) continue;
+            if (!s.Tower.CanUpgrade || gold < s.Tower.NextUpgrade.cost) continue;
+            Vector3 sp = Camera.main.WorldToScreenPoint(s.Tower.transform.position + Vector3.up * (cell * 1.0f));
+            if (sp.z < 0) continue;
+            GUI.Label(new Rect(sp.x - 20, Screen.height - sp.y - 14, 40, 28), "⬆", st);
+        }
+    }
+
+    // 호버한 빈 슬롯 옆 비용 툴팁
+    void DrawHoverTooltip(GUIStyle label)
+    {
+        if (hoveredSlot == null || pendingSlot != null || allowedTowers.Count == 0) return;
+        Vector2 m = Event.current != null ? Event.current.mousePosition : new Vector2(-1, -1);
+        if (m.x < 0) return;
+        string t = allowedTowers.Count == 1 ? $"{allowedTowers[0].displayName} · {allowedTowers[0].cost}G" : "여기에 포탑 설치";
+        var st = new GUIStyle(label) { fontSize = 14, alignment = TextAnchor.MiddleCenter };
+        st.normal.textColor = new Color(0.85f, 0.95f, 1f);
+        var r = new Rect(m.x + 16, m.y - 6, 150, 22);
+        var _bg = GUI.color; GUI.color = new Color(0.08f, 0.10f, 0.14f, 0.9f);
+        GUI.DrawTexture(r, Texture2D.whiteTexture); GUI.color = _bg;
+        GUI.Label(r, t, st);
+    }
+
+    // 일시 안내 토스트
+    void DrawHint(GUIStyle label)
+    {
+        if (Time.time >= hintUntil || string.IsNullOrEmpty(hintText)) return;
+        var st = new GUIStyle(label) { fontSize = 17, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+        st.normal.textColor = Color.white;
+        float w = 360, h = 36;
+        var r = new Rect((Screen.width - w) / 2, 150, w, h);
+        var _bg = GUI.color; GUI.color = new Color(0.12f, 0.45f, 0.85f, 0.92f);
+        GUI.DrawTexture(r, Texture2D.whiteTexture); GUI.color = _bg;
+        GUI.Label(r, hintText, st);
     }
 
     static int _ps;
