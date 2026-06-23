@@ -1,0 +1,39 @@
+{
+  "id": "stage_03",
+  "displayName": "3. 강철 수송대",
+  "grid": [
+    "S####.....",
+    "....#.....",
+    "..o.#.####",
+    "..o.#.#..G",
+    "..o.###.#.",
+    "..o.....#.",
+    "..#######.",
+    "..#..o..o.",
+    "..#.......",
+    "..o......."
+  ],
+  "startGold": 150,
+  "startLives": 12,
+  "autoNextWave": false,
+  "allowedTowers": ["arrow", "cannon", "frost"],
+  "starThresholds": [70, 100],
+  "tutorialId": "slow_intro",
+  "waves": [
+    { "restBefore": 0, "groups": [
+      { "enemyId": "ufo_basic", "count": 8, "interval": 0.6, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_fast",  "count": 4, "interval": 0.6, "startDelay": 3, "pathIndex": 0 } ] },
+    { "restBefore": 9, "groups": [
+      { "enemyId": "ufo_fast", "count": 8, "interval": 0.5, "startDelay": 0, "pathIndex": 0 } ] },
+    { "restBefore": 9, "groups": [
+      { "enemyId": "ufo_tank",  "count": 1, "interval": 1.0, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_basic", "count": 6, "interval": 0.6, "startDelay": 2, "pathIndex": 0 } ] },
+    { "restBefore": 9, "groups": [
+      { "enemyId": "ufo_armor", "count": 3, "interval": 1.4, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_swarm", "count": 10, "interval": 0.3, "startDelay": 4, "pathIndex": 0 } ] },
+    { "restBefore": 10, "groups": [
+      { "enemyId": "ufo_tank",  "count": 2, "interval": 2.0, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_armor", "count": 3, "interval": 1.4, "startDelay": 3, "pathIndex": 0 },
+      { "enemyId": "ufo_fast",  "count": 6, "interval": 0.5, "startDelay": 7, "pathIndex": 0 } ] }
+  ]
+}

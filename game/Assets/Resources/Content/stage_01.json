@@ -21,14 +21,14 @@
   "tutorialId": "basic_intro",
   "waves": [
     { "restBefore": 0, "groups": [
-      { "enemyId": "ufo_basic", "count": 5, "interval": 0.8, "startDelay": 0, "pathIndex": 0 }
-    ] },
-    { "restBefore": 3, "groups": [
-      { "enemyId": "ufo_basic", "count": 8, "interval": 0.8, "startDelay": 0, "pathIndex": 0 }
-    ] },
-    { "restBefore": 3, "groups": [
-      { "enemyId": "ufo_basic", "count": 6, "interval": 0.8, "startDelay": 0, "pathIndex": 0 },
-      { "enemyId": "ufo_fast",  "count": 4, "interval": 0.8, "startDelay": 5, "pathIndex": 0 }
-    ] }
+      { "enemyId": "ufo_basic", "count": 5, "interval": 0.8, "startDelay": 0, "pathIndex": 0 } ] },
+    { "restBefore": 8, "groups": [
+      { "enemyId": "ufo_basic", "count": 8, "interval": 0.7, "startDelay": 0, "pathIndex": 0 } ] },
+    { "restBefore": 8, "groups": [
+      { "enemyId": "ufo_basic", "count": 6, "interval": 0.7, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_fast",  "count": 4, "interval": 0.8, "startDelay": 5, "pathIndex": 0 } ] },
+    { "restBefore": 8, "groups": [
+      { "enemyId": "ufo_basic", "count": 8, "interval": 0.6, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_fast",  "count": 6, "interval": 0.7, "startDelay": 4, "pathIndex": 0 } ] }
   ]
 }

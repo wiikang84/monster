@@ -1,21 +1,36 @@
 {
   "items": [
     {
-      "id": "arrow",
-      "displayName": "화살탑",
-      "baseModel": "tower-round-base",
-      "weaponModel": "weapon-turret",
-      "projectileModel": "weapon-ammo-bullet",
-      "cost": 50,
-      "range": 7.0,
-      "fireRate": 0.9,
-      "damage": 25,
-      "projectileSpeed": 16.0,
-      "damageType": "Single",
-      "targeting": "Nearest",
-      "shootSound": "laser1",
+      "id": "arrow", "displayName": "화살탑",
+      "baseModel": "tower-round-base", "weaponModel": "weapon-turret", "projectileModel": "weapon-ammo-bullet",
+      "cost": 50, "range": 7.0, "fireRate": 0.9, "damage": 25, "projectileSpeed": 16.0,
+      "damageType": "Single", "targeting": "Nearest", "shootSound": "laserSmall_000",
       "upgrades": [
-        { "cost": 40, "damage": 15, "range": 1.0, "fireRate": -0.1, "projectileSpeed": 2.0 }
+        { "cost": 40, "damage": 15, "range": 1.0, "fireRate": 0.25, "projectileSpeed": 2.0 },
+        { "cost": 90, "damage": 20, "range": 0.0, "fireRate": 0.30, "projectileSpeed": 2.0, "special": "crit15" }
+      ]
+    },
+    {
+      "id": "cannon", "displayName": "포탑",
+      "baseModel": "tower-square-bottom-a", "weaponModel": "weapon-cannon", "projectileModel": "weapon-ammo-cannonball",
+      "cost": 90, "range": 6.5, "fireRate": 0.55, "damage": 40, "projectileSpeed": 12.0,
+      "damageType": "Splash", "splashRadius": 2.2, "splashFalloff": 0.7,
+      "targeting": "Nearest", "shootSound": "lowFrequency_explosion_000",
+      "upgrades": [
+        { "cost": 80,  "damage": 24, "range": 0.5, "fireRate": 0.15, "splashRadius": 0.6 },
+        { "cost": 150, "damage": 31, "range": 0.5, "fireRate": 0.15, "splashRadius": 0.6, "special": "burnDoT" }
+      ]
+    },
+    {
+      "id": "frost", "displayName": "냉각탑",
+      "baseModel": "tower-round-base", "weaponModel": "weapon-ballista", "projectileModel": "weapon-ammo-arrow",
+      "tint": "#4FC3F7",
+      "cost": 70, "range": 7.0, "fireRate": 1.0, "damage": 8, "projectileSpeed": 18.0,
+      "damageType": "Slow", "slowFactor": 0.35, "slowDuration": 2.0,
+      "targeting": "Nearest", "shootSound": "laserRetro_000",
+      "upgrades": [
+        { "cost": 60,  "damage": 5, "range": 0.5, "fireRate": 0.20, "slowFactor": 0.15, "slowDuration": 0.5 },
+        { "cost": 110, "damage": 7, "range": 0.5, "fireRate": 0.20, "slowFactor": 0.10, "slowDuration": 0.5, "special": "freeze15" }
       ]
     }
   ]

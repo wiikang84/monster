@@ -1,22 +1,14 @@
 {
   "items": [
-    {
-      "id": "ufo_basic",
-      "displayName": "기본 UFO",
-      "model": "enemy-ufo-a",
-      "hp": 60,
-      "speed": 1.4,
-      "reward": 12,
-      "livesCost": 1
-    },
-    {
-      "id": "ufo_fast",
-      "displayName": "고속 UFO",
-      "model": "enemy-ufo-b",
-      "hp": 35,
-      "speed": 2.4,
-      "reward": 12,
-      "livesCost": 1
-    }
+    { "id":"ufo_basic", "displayName":"기본정찰기", "model":"enemy-ufo-a",
+      "scale":1.0, "tint":"#2BD6C6", "hp":60,  "speed":1.4, "reward":12, "livesCost":1, "tags":[], "resist":0 },
+    { "id":"ufo_fast",  "displayName":"고속정",     "model":"enemy-ufo-b",
+      "scale":0.9, "tint":"#FFD54F", "hp":35,  "speed":2.6, "reward":14, "livesCost":1, "tags":["fast"], "resist":0 },
+    { "id":"ufo_swarm", "displayName":"군집체",     "model":"enemy-ufo-a",
+      "scale":0.6, "tint":"#FF8A3D", "hp":18,  "speed":2.0, "reward":6,  "livesCost":1, "tags":["swarm"], "resist":0 },
+    { "id":"ufo_tank",  "displayName":"수송선",     "model":"enemy-ufo-c",
+      "scale":1.35,"tint":"#8E5BD0", "hp":220, "speed":1.0, "reward":28, "livesCost":2, "tags":[], "resist":0 },
+    { "id":"ufo_armor", "displayName":"장갑정",     "model":"enemy-ufo-c",
+      "scale":1.15,"tint":"#9AA0A6", "hp":120, "speed":1.1, "reward":24, "livesCost":2, "tags":["armored"], "resist":6 }
   ]
 }

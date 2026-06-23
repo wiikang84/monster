@@ -16,7 +16,12 @@ namespace Tower.Data
         public int reward;            // 처치 시 골드
         public int livesCost = 1;     // 기지 도달 시 라이프 감소량
 
-        public List<string> resist = new List<string>(); // 면역/저항 태그 (예: "slow")
+        public float scale = 1f;      // 모델 스케일
+        public string tint;           // 색 틴트(#RRGGBB)
+        public int resist;            // 받는 피해 고정 감산(장갑), 최소 1 보장
+        public List<string> tags = new List<string>(); // fast/swarm/armored/flying...
         public bool isBoss;
+
+        public bool Has(string tag) => tags != null && tags.Contains(tag);
     }
 }

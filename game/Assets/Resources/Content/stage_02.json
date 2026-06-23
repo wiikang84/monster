@@ -1,0 +1,37 @@
+{
+  "id": "stage_02",
+  "displayName": "2. 군집의 습격",
+  "grid": [
+    "S#######..",
+    "......#...",
+    "..o...#...",
+    "..o...####",
+    "..####...G",
+    "..#..o..#.",
+    "..#..o..#.",
+    "..######o.",
+    "....o.....",
+    ".........."
+  ],
+  "startGold": 130,
+  "startLives": 12,
+  "autoNextWave": false,
+  "allowedTowers": ["arrow", "cannon"],
+  "starThresholds": [70, 100],
+  "tutorialId": "splash_intro",
+  "waves": [
+    { "restBefore": 0, "groups": [
+      { "enemyId": "ufo_basic", "count": 6, "interval": 0.7, "startDelay": 0, "pathIndex": 0 } ] },
+    { "restBefore": 8, "groups": [
+      { "enemyId": "ufo_swarm", "count": 10, "interval": 0.35, "startDelay": 0, "pathIndex": 0 } ] },
+    { "restBefore": 8, "groups": [
+      { "enemyId": "ufo_basic", "count": 5, "interval": 0.7, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_swarm", "count": 10, "interval": 0.35, "startDelay": 4, "pathIndex": 0 } ] },
+    { "restBefore": 8, "groups": [
+      { "enemyId": "ufo_swarm", "count": 14, "interval": 0.3, "startDelay": 0, "pathIndex": 0 } ] },
+    { "restBefore": 8, "groups": [
+      { "enemyId": "ufo_basic", "count": 8, "interval": 0.6, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_fast",  "count": 5, "interval": 0.6, "startDelay": 3, "pathIndex": 0 },
+      { "enemyId": "ufo_swarm", "count": 12, "interval": 0.3, "startDelay": 6, "pathIndex": 0 } ] }
+  ]
+}

@@ -25,8 +25,11 @@ namespace Tower.Data
         // 공격 타입 옵션 (JSON엔 문자열로 표기: "Single"/"Splash"/"Slow"/"DoT")
         public string damageType = "Single";
         public float splashRadius;
+        public float splashFalloff = 0.7f; // 가장자리 데미지 비율
         public float slowFactor;      // 0~1 (Slow 타입에서 속도 배수 감소량)
+        public float slowDuration = 2f;
         public float dotDps;
+        public string tint;           // 타워 색 틴트(#RRGGBB), 없으면 기본
 
         // 타깃 선택 정책 (JSON 문자열: "Nearest"/"First"/"MaxHp"/"MinHp")
         public string targeting = "Nearest";
@@ -42,14 +45,18 @@ namespace Tower.Data
             => Enum.TryParse<T>(s, true, out var v) ? v : fallback;
     }
 
-    /// <summary>타워 업그레이드 1단계의 증분값.</summary>
+    /// <summary>타워 업그레이드 1단계의 증분값(델타).</summary>
     [Serializable]
     public sealed class UpgradeDef
     {
         public int cost;
         public int damage;            // 증가량
         public float range;           // 증가량
-        public float fireRate;        // 감소량(빨라짐) — 음수로 표기 가능
+        public float fireRate;        // 증가량(양수=빨라짐)
         public float projectileSpeed; // 증가량
+        public float splashRadius;    // 증가량
+        public float slowFactor;      // 증가량
+        public float slowDuration;    // 증가량
+        public string special;        // "crit15" / "burnDoT" / "freeze15" 등 (이 티어에서 부여)
     }
 }
