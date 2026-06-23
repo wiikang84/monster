@@ -23,7 +23,8 @@ public class GameManager : MonoBehaviour
     const int TOWER_COST = 50, KILL_GOLD = 12;
 
     // ── 그리드/경로 ──
-    const int COLS = 10, ROWS = 10;
+    // (M2) COLS/ROWS 는 스테이지 그리드에서 결정됨. 맵/경로/슬롯도 데이터(StageDef.grid)로 생성.
+    int COLS = 10, ROWS = 10;
     float cell = 2f;
     float hover;
     Material colormapMat;
@@ -31,18 +32,24 @@ public class GameManager : MonoBehaviour
     Font uiFont;        // 한글 UI 폰트(Pretendard). WebGL 기본 폰트엔 한글 글리프가 없어 필수.
     Transform envRoot, spawnedRoot;
 
-    readonly List<Vector2Int> corners = new List<Vector2Int>
-    {
-        new Vector2Int(0,2), new Vector2Int(8,2), new Vector2Int(8,5),
-        new Vector2Int(2,5), new Vector2Int(2,8), new Vector2Int(9,8),
-    };
-    HashSet<Vector2Int> pathSet;
+    // (M2) 데이터 기반 맵/경로 서비스 + 현재 스테이지
+    Tower.Data.StageDef stage;
+    Tower.Map.MapService map;
+    Tower.Map.PathService pathSvc;
+
+    // (M2) 아래 하드코딩 경로/슬롯은 그리드 파싱으로 대체 — 보존 위해 주석 처리
+    // readonly List<Vector2Int> corners = new List<Vector2Int>
+    // {
+    //     new Vector2Int(0,2), new Vector2Int(8,2), new Vector2Int(8,5),
+    //     new Vector2Int(2,5), new Vector2Int(2,8), new Vector2Int(9,8),
+    // };
+    // HashSet<Vector2Int> pathSet;
     public readonly List<Vector3> Waypoints = new List<Vector3>();
-    readonly List<Vector2Int> slotCells = new List<Vector2Int>
-    {
-        new Vector2Int(2,3), new Vector2Int(5,3), new Vector2Int(7,3), new Vector2Int(7,4),
-        new Vector2Int(3,6), new Vector2Int(5,6), new Vector2Int(3,7), new Vector2Int(5,9),
-    };
+    // readonly List<Vector2Int> slotCells = new List<Vector2Int>
+    // {
+    //     new Vector2Int(2,3), new Vector2Int(5,3), new Vector2Int(7,3), new Vector2Int(7,4),
+    //     new Vector2Int(3,6), new Vector2Int(5,6), new Vector2Int(3,7), new Vector2Int(5,9),
+    // };
     readonly List<TowerSlot> slots = new List<TowerSlot>();
 
     public readonly List<Enemy> Enemies = new List<Enemy>();
@@ -76,7 +83,25 @@ public class GameManager : MonoBehaviour
         cell = MeasureCell();
         hover = cell * 0.55f;
 
-        BuildPathData();
+        // (M2) 스테이지 데이터 로드 → 그리드에서 맵/경로 생성
+        var db = Tower.Core.ServiceLocator.Get<Tower.Data.ContentDB>();
+        stage = db?.Stage("stage_01");
+        map = new Tower.Map.MapService();
+        pathSvc = new Tower.Map.PathService();
+
+        if (stage != null && stage.grid != null && stage.grid.Length > 0)
+        {
+            map.Parse(stage);
+            COLS = map.Cols; ROWS = map.Rows;
+            pathSvc.Build(map, (c, r) => new Vector3(c * cell, hover, r * cell));
+            Waypoints.Clear();
+            if (pathSvc.Paths.Count > 0) Waypoints.AddRange(pathSvc.Paths[0]);
+        }
+        else
+        {
+            Debug.LogError("[GameManager] stage_01 데이터를 불러오지 못했습니다.");
+        }
+
         BuildEnvironment();
     }
 
@@ -97,21 +122,22 @@ public class GameManager : MonoBehaviour
         return c <= 0.01f ? 2f : c;
     }
 
-    void BuildPathData()
-    {
-        pathSet = new HashSet<Vector2Int>();
-        for (int i = 0; i < corners.Count - 1; i++)
-        {
-            var a = corners[i]; var b = corners[i + 1];
-            var step = new Vector2Int(Sgn(b.x - a.x), Sgn(b.y - a.y));
-            var cur = a;
-            if (i == 0) pathSet.Add(cur);
-            while (cur != b) { cur += step; pathSet.Add(cur); }
-        }
-        foreach (var cn in corners)
-            Waypoints.Add(new Vector3(cn.x * cell, hover, cn.y * cell));
-    }
-    static int Sgn(int v) => v == 0 ? 0 : (v > 0 ? 1 : -1);
+    // (M2) corners 하드코딩 경로 생성은 PathService(BFS)로 대체 — 보존 위해 주석 처리
+    // void BuildPathData()
+    // {
+    //     pathSet = new HashSet<Vector2Int>();
+    //     for (int i = 0; i < corners.Count - 1; i++)
+    //     {
+    //         var a = corners[i]; var b = corners[i + 1];
+    //         var step = new Vector2Int(Sgn(b.x - a.x), Sgn(b.y - a.y));
+    //         var cur = a;
+    //         if (i == 0) pathSet.Add(cur);
+    //         while (cur != b) { cur += step; pathSet.Add(cur); }
+    //     }
+    //     foreach (var cn in corners)
+    //         Waypoints.Add(new Vector3(cn.x * cell, hover, cn.y * cell));
+    // }
+    // static int Sgn(int v) => v == 0 ? 0 : (v > 0 ? 1 : -1);
 
     GameObject Make(string model, Vector3 pos, Transform parent)
     {
@@ -157,21 +183,26 @@ public class GameManager : MonoBehaviour
             l.transform.rotation = Quaternion.Euler(50, -40, 0);
         }
 
+        // (M2) 그리드 데이터로 타일 생성 (길=tile-dirt, 그 외=tile)
         for (int r = 0; r < ROWS; r++)
             for (int c = 0; c < COLS; c++)
             {
-                bool isPath = pathSet.Contains(new Vector2Int(c, r));
+                bool isPath = map.IsWalkable(c, r);
                 Make(isPath ? "tile-dirt" : "tile", Center(c, r), envRoot);
             }
 
-        Make("spawn-round", Center(corners[0].x, corners[0].y) + Vector3.up * 0.02f, envRoot);
-        var last = corners[corners.Count - 1];
-        var baseGo = Make("wood-structure-high", Center(last.x, last.y) + Vector3.up * 0.02f, envRoot);
-        baseGo.transform.localScale *= 1.1f;
-
-        foreach (var sc in slotCells)
+        // 스폰점 / 기지 (그리드의 S / G)
+        foreach (var sp in map.SpawnCells)
+            Make("spawn-round", Center(sp.x, sp.y) + Vector3.up * 0.02f, envRoot);
+        foreach (var bp in map.BaseCells)
         {
-            if (pathSet.Contains(sc)) continue;
+            var baseGo = Make("wood-structure-high", Center(bp.x, bp.y) + Vector3.up * 0.02f, envRoot);
+            baseGo.transform.localScale *= 1.1f;
+        }
+
+        // 설치 슬롯 (그리드의 o)
+        foreach (var sc in map.SlotCells)
+        {
             var go = Make("selection-a", Center(sc.x, sc.y) + Vector3.up * 0.03f, envRoot);
             foreach (var r in go.GetComponentsInChildren<Renderer>()) r.sharedMaterial = slotMat; // 파란 강조색
             var bc = go.AddComponent<BoxCollider>();
@@ -181,6 +212,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    static bool _dbgGui;   // OnGUI 예외 1회 로깅용(안전장치)
     void Update()
     {
         if (state == State.InWave && allSpawned && Enemies.Count == 0)
@@ -259,16 +291,24 @@ public class GameManager : MonoBehaviour
 
     void OnGUI()
     {
-        // 한글 폰트를 모든 GUI 기본 폰트로 지정 (이 줄이 없으면 WebGL에서 한글이 안 보임)
-        if (uiFont != null) GUI.skin.font = uiFont;
+      try {
+        // GUI.skin 전역을 건드리면(특히 GUI.skin.font 대입) WebGL 빌드에서 NRE가 나는 경우가 있어,
+        // 폰트는 각 스타일에 직접 지정하고 전역 스킨은 읽기만 한다(M5에서 uGUI로 교체 예정).
+        var skin = GUI.skin;
 
-        var box = new GUIStyle(GUI.skin.box) { fontSize = 18, alignment = TextAnchor.MiddleLeft, padding = new RectOffset(12, 12, 8, 8) };
-        var big = new GUIStyle(GUI.skin.label) { fontSize = 36, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, normal = { textColor = Color.white } };
-        var btn = new GUIStyle(GUI.skin.button) { fontSize = 20, fontStyle = FontStyle.Bold };
-        if (uiFont != null) { box.font = uiFont; big.font = uiFont; btn.font = uiFont; } // 커스텀 스타일에도 한글 폰트 보장
+        var box = skin != null ? new GUIStyle(skin.box) : new GUIStyle();
+        box.fontSize = 18; box.alignment = TextAnchor.MiddleLeft; box.padding = new RectOffset(12, 12, 8, 8);
+        var label = skin != null ? new GUIStyle(skin.label) : new GUIStyle();
+        label.fontSize = 15;
+        var big = skin != null ? new GUIStyle(skin.label) : new GUIStyle();
+        big.fontSize = 36; big.fontStyle = FontStyle.Bold; big.alignment = TextAnchor.MiddleCenter; big.normal.textColor = Color.white;
+        var btn = skin != null ? new GUIStyle(skin.button) : new GUIStyle();
+        btn.fontSize = 20; btn.fontStyle = FontStyle.Bold;
+
+        if (uiFont != null) { box.font = uiFont; label.font = uiFont; big.font = uiFont; btn.font = uiFont; }
 
         GUI.Box(new Rect(10, 10, 360, 44), $"  골드 {gold}      라이프 {lives}      웨이브 {waveIndex + 1}/{waves.Count}", box);
-        GUI.Label(new Rect(10, 60, 600, 24), $"  파란 선택타일을 클릭해 타워 설치 (비용 {TOWER_COST}골드)");
+        GUI.Label(new Rect(12, 60, 600, 24), $"파란 선택타일을 클릭해 타워 설치 (비용 {TOWER_COST}골드)", label);
 
         if (state == State.Ready)
             if (GUI.Button(new Rect(10, 92, 200, 50), $"웨이브 {waveIndex + 1} 시작 ▶", btn)) StartWave();
@@ -281,5 +321,6 @@ public class GameManager : MonoBehaviour
             GUI.Label(new Rect(0, Screen.height / 2 - 90, Screen.width, 60), state == State.Won ? "클리어!" : "게임 오버", big);
             if (GUI.Button(new Rect(Screen.width / 2 - 90, Screen.height / 2, 180, 56), "다시 시작", btn)) Restart();
         }
+      } catch (System.Exception ex) { if (!_dbgGui) { _dbgGui = true; Debug.LogError("[OnGUI-ERR] " + ex.Message); } }
     }
 }
