@@ -85,10 +85,29 @@ public class GameManager : MonoBehaviour
         hover = cell * 0.55f;
 
         db = Tower.Core.ServiceLocator.Get<ContentDB>();
-        stage = db?.Stage("stage_01");
         map = new Tower.Map.MapService();
         pathSvc = new Tower.Map.PathService();
 
+        selRing = Tower.Gameplay.RangeRing.Create(new Color(1f, 0.82f, 0.25f, 1f), 0.14f * cell);     // 선택 사거리(굵게 → 잘 보이게)
+        previewRing = Tower.Gameplay.RangeRing.Create(new Color(0.21f, 0.77f, 1f, 1f), 0.12f * cell); // 설치 미리보기
+
+        GoToStage("stage_01");
+    }
+
+    string currentStageId = "stage_01";
+
+    // 스테이지 로드/전환 — 환경 재구성 + 상태 리셋(클리어→다음 스테이지에 사용)
+    void GoToStage(string id)
+    {
+        StopAllCoroutines();
+        for (int i = envRoot.childCount - 1; i >= 0; i--) Destroy(envRoot.GetChild(i).gameObject);
+        for (int i = spawnedRoot.childCount - 1; i >= 0; i--) Destroy(spawnedRoot.GetChild(i).gameObject);
+        slots.Clear(); Enemies.Clear(); floats.Clear();
+        selected = null; pendingSlot = null; buildTower = null;
+        if (selRing) selRing.Hide(); if (previewRing) previewRing.Hide();
+
+        currentStageId = id;
+        stage = db?.Stage(id);
         if (stage != null && stage.grid != null && stage.grid.Length > 0)
         {
             map.Parse(stage);
@@ -96,18 +115,26 @@ public class GameManager : MonoBehaviour
             pathSvc.Build(map, (c, r) => new Vector3(c * cell, hover, r * cell));
             Waypoints.Clear();
             if (pathSvc.Paths.Count > 0) Waypoints.AddRange(pathSvc.Paths[0]);
-
             gold = stage.startGold; lives = stage.startLives;
             allowedTowers.Clear();
-            foreach (var id in stage.allowedTowers) { var d = db.Tower(id); if (d != null) allowedTowers.Add(d); }
+            foreach (var tid in stage.allowedTowers) { var d = db.Tower(tid); if (d != null) allowedTowers.Add(d); }
         }
-        else { Debug.LogError("[GameManager] stage_01 로드 실패"); gold = 120; lives = 10; }
+        else { Debug.LogError($"[GameManager] {id} 로드 실패"); gold = 120; lives = 10; }
 
-        selRing = Tower.Gameplay.RangeRing.Create(new Color(1f, 0.82f, 0.25f, 1f), 0.06f * cell);
-        previewRing = Tower.Gameplay.RangeRing.Create(new Color(0.21f, 0.77f, 1f, 1f), 0.06f * cell);
-
+        waveIndex = 0; allSpawned = false; runningGroups = 0; state = State.Ready;
+        helpDismissed = (id != "stage_01");   // 첫 진입 도움말은 1스테이지만
         SetupGraphics();
         BuildEnvironment();
+    }
+
+    // 다음 스테이지 id (없으면 null = 최종)
+    string NextStageId()
+    {
+        if (db == null || db.Stages == null) return null;
+        for (int i = 0; i < db.Stages.Count; i++)
+            if (db.Stages[i].id == currentStageId)
+                return i + 1 < db.Stages.Count ? db.Stages[i + 1].id : null;
+        return null;
     }
 
     void SetupGraphics()
@@ -481,18 +508,7 @@ public class GameManager : MonoBehaviour
         floats.Add(new FloatText { world = world, text = text, color = color, born = Time.time, life = life, size = size });
     }
 
-    void Restart()
-    {
-        StopAllCoroutines();
-        for (int i = spawnedRoot.childCount - 1; i >= 0; i--)
-            Destroy(spawnedRoot.GetChild(i).gameObject);
-        Enemies.Clear(); floats.Clear();
-        foreach (var s in slots) { s.Occupied = false; s.Tower = null; }
-        Deselect();
-        gold = stage != null ? stage.startGold : 120;
-        lives = stage != null ? stage.startLives : 10;
-        waveIndex = 0; allSpawned = false; runningGroups = 0; state = State.Ready;
-    }
+    void Restart() => GoToStage(currentStageId);   // 현재 스테이지 재시작(환경 재구성)
 
     // ───────────────────────── UI (IMGUI, M5에서 uGUI로 승격 예정) ─────────────────────────
     static bool _dbgGui;
@@ -847,7 +863,22 @@ public class GameManager : MonoBehaviour
         var c = GUI.color; GUI.color = new Color(0, 0, 0, 0.6f);
         GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
         GUI.color = c;
-        GUI.Label(new Rect(0, Screen.height / 2 - 90, Screen.width, 60), state == State.Won ? "클리어!" : "게임 오버", big);
-        if (GUI.Button(new Rect(Screen.width / 2 - 90, Screen.height / 2, 180, 56), "다시 시작", btn)) Restart();
+        bool win = state == State.Won;
+        string next = win ? NextStageId() : null;
+        GUI.Label(new Rect(0, Screen.height / 2 - 100, Screen.width, 60),
+                  win ? (next != null ? "스테이지 클리어!" : "전 스테이지 클리어! 🎉") : "게임 오버", big);
+        if (win && next != null)
+        {
+            if (GUI.Button(new Rect(Screen.width / 2 - 190, Screen.height / 2, 180, 56), "다음 스테이지 ▶", btn)) GoToStage(next);
+            if (GUI.Button(new Rect(Screen.width / 2 + 10, Screen.height / 2, 180, 56), "다시 하기", btn)) Restart();
+        }
+        else if (win)
+        {
+            if (GUI.Button(new Rect(Screen.width / 2 - 90, Screen.height / 2, 180, 56), "처음부터", btn)) GoToStage("stage_01");
+        }
+        else
+        {
+            if (GUI.Button(new Rect(Screen.width / 2 - 90, Screen.height / 2, 180, 56), "다시 시작", btn)) Restart();
+        }
     }
 }

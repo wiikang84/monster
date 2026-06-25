@@ -1,0 +1,42 @@
+{
+  "id": "stage_04",
+  "displayName": "4. 강철 수송대",
+  "grid": [
+    "S########.",
+    "........#.",
+    ".########.",
+    ".#........",
+    ".########.",
+    "........#.",
+    ".########.",
+    ".#........",
+    ".#########",
+    "........G."
+  ],
+  "startGold": 170,
+  "startLives": 14,
+  "autoNextWave": false,
+  "allowedTowers": ["arrow", "cannon", "frost", "flak"],
+  "starThresholds": [4, 1],
+  "waves": [
+    { "restBefore": 0, "groups": [
+      { "enemyId": "ufo_basic", "count": 8, "interval": 0.6, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_fast",  "count": 4, "interval": 0.6, "startDelay": 3, "pathIndex": 0 } ] },
+    { "restBefore": 9, "groups": [
+      { "enemyId": "ufo_tank",  "count": 1, "interval": 1.0, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_basic", "count": 6, "interval": 0.6, "startDelay": 2, "pathIndex": 0 } ] },
+    { "restBefore": 9, "groups": [
+      { "enemyId": "ufo_armor", "count": 3, "interval": 1.4, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_swarm", "count": 10, "interval": 0.3, "startDelay": 4, "pathIndex": 0 } ] },
+    { "restBefore": 9, "groups": [
+      { "enemyId": "ufo_tank",   "count": 2, "interval": 2.0, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_glider", "count": 5, "interval": 0.8, "startDelay": 3, "pathIndex": 0 } ] },
+    { "restBefore": 9, "groups": [
+      { "enemyId": "ufo_armor", "count": 4, "interval": 1.2, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_fast",  "count": 8, "interval": 0.5, "startDelay": 4, "pathIndex": 0 } ] },
+    { "restBefore": 10, "groups": [
+      { "enemyId": "ufo_tank",  "count": 3, "interval": 1.8, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_armor", "count": 3, "interval": 1.4, "startDelay": 3, "pathIndex": 0 },
+      { "enemyId": "ufo_swarm", "count": 12, "interval": 0.3, "startDelay": 7, "pathIndex": 0 } ] }
+  ]
+}

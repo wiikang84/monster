@@ -28,11 +28,14 @@ namespace Tower.Gameplay
             lr.numCapVertices = 2;
             lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             lr.receiveShadows = false;
-            var mat = new Material(Shader.Find("Standard"));
+            // Unlit 셰이더 — 조명·안개 영향 없이 항상 선명(Standard는 부감+안개에서 묻혔음). WebGL 호환.
+            var sh = Shader.Find("Unlit/Color");
+            if (sh == null) sh = Shader.Find("Sprites/Default");
+            var mat = new Material(sh);
             mat.color = color;
-            mat.EnableKeyword("_EMISSION");
-            mat.SetColor("_EmissionColor", color * 0.8f);
             lr.material = mat;
+            lr.startColor = lr.endColor = color;   // 버텍스 컬러도 지정(가시성 보강)
+            lr.numCapVertices = 4;
             Rebuild(0f);
         }
 
@@ -41,7 +44,7 @@ namespace Tower.Gameplay
             for (int i = 0; i < N; i++)
             {
                 float a = (float)i / N * Mathf.PI * 2f;
-                lr.SetPosition(i, new Vector3(Mathf.Cos(a) * r, 0.06f, Mathf.Sin(a) * r));
+                lr.SetPosition(i, new Vector3(Mathf.Cos(a) * r, 0.2f, Mathf.Sin(a) * r));  // 바닥 위로 띄워 안 묻히게
             }
         }
 

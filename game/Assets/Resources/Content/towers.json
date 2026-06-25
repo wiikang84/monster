@@ -3,7 +3,7 @@
     {
       "id": "arrow", "displayName": "화살탑", "desc": "단일 표적 · 빠른 연사",
       "baseModel": "tower-round-base", "weaponModel": "weapon-turret", "projectileModel": "weapon-ammo-bullet",
-      "cost": 50, "range": 4.5, "fireRate": 0.9, "damage": 25, "projectileSpeed": 16.0,
+      "cost": 50, "range": 3.0, "fireRate": 0.9, "damage": 25, "projectileSpeed": 16.0,
       "damageType": "Single", "targeting": "Nearest", "shootSound": "laserSmall_000",
       "upgrades": [
         { "cost": 40, "damage": 15, "range": 1.0, "fireRate": 0.25, "projectileSpeed": 2.0 },
@@ -13,7 +13,7 @@
     {
       "id": "cannon", "displayName": "포탑", "desc": "광역 폭발 · 군집에 강함",
       "baseModel": "tower-square-bottom-a", "weaponModel": "weapon-cannon", "projectileModel": "weapon-ammo-cannonball",
-      "cost": 90, "range": 4.0, "fireRate": 0.55, "damage": 40, "projectileSpeed": 12.0,
+      "cost": 90, "range": 2.6, "fireRate": 0.55, "damage": 40, "projectileSpeed": 12.0,
       "damageType": "Splash", "splashRadius": 2.2, "splashFalloff": 0.7,
       "targeting": "Nearest", "shootSound": "lowFrequency_explosion_000",
       "upgrades": [
@@ -25,7 +25,7 @@
       "id": "frost", "displayName": "냉각탑", "desc": "둔화 · 고속 적 제어",
       "baseModel": "tower-round-base", "weaponModel": "weapon-ballista", "projectileModel": "weapon-ammo-arrow",
       "tint": "#4FC3F7",
-      "cost": 70, "range": 5.0, "fireRate": 1.0, "damage": 8, "projectileSpeed": 18.0,
+      "cost": 70, "range": 3.5, "fireRate": 1.0, "damage": 8, "projectileSpeed": 18.0,
       "damageType": "Slow", "slowFactor": 0.35, "slowDuration": 2.0,
       "targeting": "Nearest", "shootSound": "laserRetro_000",
       "upgrades": [
@@ -37,7 +37,7 @@
       "id": "flak", "displayName": "대공포", "desc": "비행·고속 적 특화 (x2)",
       "baseModel": "tower-square-bottom-b", "weaponModel": "weapon-catapult", "projectileModel": "weapon-ammo-boulder",
       "tint": "#B0BEC5",
-      "cost": 80, "range": 5.5, "fireRate": 1.0, "damage": 14, "projectileSpeed": 20.0,
+      "cost": 80, "range": 4.0, "fireRate": 1.0, "damage": 14, "projectileSpeed": 20.0,
       "damageType": "Single", "bonusTag": "flying", "bonusMult": 2.0,
       "targeting": "First", "shootSound": "laserLarge_000",
       "upgrades": [

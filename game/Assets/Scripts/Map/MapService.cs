@@ -53,6 +53,18 @@ namespace Tower.Map
                     else if (t == CellType.Base) BaseCells.Add(new Vector2Int(c, r));
                 }
             }
+
+            // 'o' 외에도, 길(경로/스폰/기지)에 상하좌우로 맞닿은 빈 잔디칸을 자동 설치 슬롯으로 승격
+            // → 포탑 설치 자유도 대폭 상승("슬롯이 너무 적다" 해소). 데코는 Slot이 된 칸을 자동 회피(At()==Empty만 산점).
+            var promote = new List<Vector2Int>();
+            for (int rr = 0; rr < Rows; rr++)
+                for (int cc = 0; cc < Cols; cc++)
+                {
+                    if (cells[cc, rr] != CellType.Empty) continue;
+                    if (IsWalkable(cc + 1, rr) || IsWalkable(cc - 1, rr) || IsWalkable(cc, rr + 1) || IsWalkable(cc, rr - 1))
+                        promote.Add(new Vector2Int(cc, rr));
+                }
+            foreach (var p in promote) { cells[p.x, p.y] = CellType.Slot; SlotCells.Add(p); }
         }
 
         public CellType At(int c, int r) => cells[c, r];

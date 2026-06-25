@@ -75,6 +75,8 @@ tower/
 - ⚠️ WebGL 함정: OnGUI에서 `GUI.skin.font`/`GUI.skin.box` 직접 사용 시 NRE → 폰트는 개별 GUIStyle에, 패널 배경은 DrawTexture로. JSON은 JsonUtility(Newtonsoft 금지, +21MB).
 - 2026-06-25: **"게임답게" 4종 개편 + 배포.** 오너 피드백("유닛 선택 안 됨·너무 쉬움·불친절") 대응. ①건설 팔레트(하단 카드 선택→건설모드)+빈 슬롯 펄스/(+)아이콘 표시 ②타워4종(대공포 flak 추가)+적 비행(활공기)+태그 상성(비행 splash½·대공 flying×2) ③사거리 축소(arrow7→4.5·cannon6.5→4·frost7→5·flak5.5)로 전략성 ④첫 진입 안내 오버레이+다음 웨이브 미리보기. 빌드 EXIT0, wiitower.web.app 배포 완료. 수정파일: GameManager/Enemy/Projectile/TowerUnit/TowerDef.cs + towers/enemies/stage_01~03.json. (※pylon 지원타워·보스·스테이지4~15·튜토 스텝게이팅은 다음 묶음)
 - ⚠️ 빌드/배포 환경: Unity=`C:\Program Files\Unity\Hub\Editor\6000.0.58f1\Editor\Unity.exe`. 배포는 PowerShell에서 `$env:Path="C:\Program Files\nodejs;"+$env:Path` 후 `& "$env:APPDATA\npm\firebase.cmd" deploy --only hosting --project wiigame-448c7` (Bash엔 npx 없음, firebase.cmd가 node를 PATH에서 찾음).
+- 2026-06-25(2차): **오너 피드백 즉시 반영.** ①대공포/비행적이 큐브로 뜬 원인=Resources/Models에 모델 누락 → Art 킷에서 tower-square-bottom-b·weapon-catapult·weapon-ammo-boulder·enemy-ufo-d(+weapon) 복사 ②슬롯 자유화(MapService: 길 인접 빈칸 자동 Slot 승격 → "설치공간 한정적" 해소) ③맵 3종 교체(01 ㄱ자·02 세로지그재그·03 빽빽 ㄹ자, BFS 경로검증) ④선택 사거리원 굵게(0.06→0.14×cell). 빌드 EXIT0 재배포. ⚠️ 모델키는 반드시 Resources/Models 존재 확인(없으면 Make()가 큐브 대체).
+- 2026-06-25(3차): **벤치마킹 기반 전략 재설계 + 5스테이지.** Kingdom Rush·Bloons·Defense Grid 벤치마킹→취사선택(길목/시너지/상성/난이도3축 채택, Bloons 23타워 트리·영웅·무제한설치는 버림). ①기본 사거리 대폭 너프(arrow4.5→3.0·cannon→2.6·frost→3.5·flak→4.0, 업글로만 확장) ②스테이지 3→5개 + **진행 시스템**(GameManager.GoToStage/NextStageId, 클리어→"다음 스테이지" 버튼, 환경 재구성) ③맵 5종 다양화(ㄷ자 폐기: L/U/세로지그재그/ㄹ자4단/ㄹ자6단) ④라이프 점감 18→12·적HP↑·비행 3탄부터·후반 탱커/장갑/군집 동시압박 ⑤RangeRing을 Unlit셰이더+높이0.2로 가시성 확보. 빌드 EXIT0 배포. ⚠️ 밸런스는 플레이 반복 튜닝 필요. 미구현: 스테이지선택 화면·엔드리스 모드·보스.
 
 ## 작업 규칙
 - 코드 우선(code-first): 런타임 C#로 구성해 에디터 수작업 최소화.

@@ -1,0 +1,49 @@
+{
+  "id": "stage_05",
+  "displayName": "5. 총력전",
+  "grid": [
+    "S##########.",
+    "..........#.",
+    ".##########.",
+    ".#..........",
+    ".##########.",
+    "..........#.",
+    ".##########.",
+    ".#..........",
+    ".##########.",
+    "..........#.",
+    ".##########.",
+    "..........#G"
+  ],
+  "startGold": 190,
+  "startLives": 12,
+  "autoNextWave": false,
+  "allowedTowers": ["arrow", "cannon", "frost", "flak"],
+  "starThresholds": [3, 1],
+  "waves": [
+    { "restBefore": 0, "groups": [
+      { "enemyId": "ufo_basic", "count": 10, "interval": 0.5, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_fast",  "count": 6,  "interval": 0.5, "startDelay": 3, "pathIndex": 0 } ] },
+    { "restBefore": 9, "groups": [
+      { "enemyId": "ufo_swarm", "count": 18, "interval": 0.22, "startDelay": 0, "pathIndex": 0 } ] },
+    { "restBefore": 9, "groups": [
+      { "enemyId": "ufo_armor",  "count": 4, "interval": 1.2, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_glider", "count": 6, "interval": 0.7, "startDelay": 3, "pathIndex": 0 } ] },
+    { "restBefore": 9, "groups": [
+      { "enemyId": "ufo_tank", "count": 3, "interval": 1.6, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_fast", "count": 10, "interval": 0.4, "startDelay": 4, "pathIndex": 0 } ] },
+    { "restBefore": 9, "groups": [
+      { "enemyId": "ufo_armor",  "count": 5, "interval": 1.1, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_swarm",  "count": 14, "interval": 0.25, "startDelay": 3, "pathIndex": 0 },
+      { "enemyId": "ufo_glider", "count": 6, "interval": 0.7, "startDelay": 7, "pathIndex": 0 } ] },
+    { "restBefore": 10, "groups": [
+      { "enemyId": "ufo_tank",  "count": 4, "interval": 1.5, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_armor", "count": 4, "interval": 1.2, "startDelay": 4, "pathIndex": 0 } ] },
+    { "restBefore": 12, "groups": [
+      { "enemyId": "ufo_tank",   "count": 3, "interval": 2.0, "startDelay": 0, "pathIndex": 0 },
+      { "enemyId": "ufo_armor",  "count": 4, "interval": 1.2, "startDelay": 3, "pathIndex": 0 },
+      { "enemyId": "ufo_fast",   "count": 10, "interval": 0.4, "startDelay": 7, "pathIndex": 0 },
+      { "enemyId": "ufo_swarm",  "count": 12, "interval": 0.25, "startDelay": 10, "pathIndex": 0 },
+      { "enemyId": "ufo_glider", "count": 8, "interval": 0.6, "startDelay": 13, "pathIndex": 0 } ] }
+  ]
+}
