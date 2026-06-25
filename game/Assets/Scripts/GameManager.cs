@@ -48,7 +48,9 @@ public class GameManager : MonoBehaviour
     TowerSlot hoveredSlot;        // 마우스가 올라간 빈 슬롯(PC 호버)
     Tower.Gameplay.RangeRing selRing;     // 선택 타워(노랑)
     Tower.Gameplay.RangeRing previewRing; // 설치 미리보기(시안)
-    Rect panelRect, menuRect, startBtnRect;
+    Rect panelRect, menuRect, startBtnRect, paletteRect;
+    TowerDef buildTower;   // 건설 모드: 하단 팔레트에서 고른 타워(null=건설모드 아님)
+    bool helpDismissed = false;   // 첫 진입 도움말 닫힘 여부
     float vignetteUntil = 0f;
     bool firstBuildDone = false;
     string hintText = ""; float hintUntil = 0f;
@@ -254,6 +256,9 @@ public class GameManager : MonoBehaviour
         }
         if (state == State.Won || state == State.Lost) { previewRing.Hide(); return; }
 
+        // 첫 도움말 표시 중엔 월드 입력 차단([시작하기] 버튼만 동작)
+        if (!helpDismissed && waveIndex == 0 && state == State.Ready) return;
+
         UpdateHover();
 
         if (Input.GetMouseButtonDown(0))
@@ -262,10 +267,22 @@ public class GameManager : MonoBehaviour
             Vector2 g = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
             if ((selected != null && panelRect.Contains(g)) ||
                 (pendingSlot != null && menuRect.Contains(g)) ||
-                (state == State.Ready && startBtnRect.Contains(g)))
+                (state == State.Ready && startBtnRect.Contains(g)) ||
+                paletteRect.Contains(g))             // 하단 팔레트 클릭은 월드 처리 제외
                 return;
 
             HandleWorldClick();
+        }
+
+        // 건설 모드: 설치 슬롯 전체를 펄스 발광 → "어디 지을 수 있는지" 한눈에
+        if (slotMat != null)
+        {
+            if (buildTower != null)
+            {
+                float k = 0.25f + 0.6f * Mathf.PingPong(Time.time * 2.2f, 1f);
+                slotMat.SetColor("_EmissionColor", new Color(0.12f, 0.55f, 1f) * k);
+            }
+            else slotMat.SetColor("_EmissionColor", new Color(0.1f, 0.3f, 0.7f));
         }
     }
 
@@ -274,8 +291,8 @@ public class GameManager : MonoBehaviour
     {
         if (pendingSlot != null) return;
         Vector2 g = new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
-        bool overUI = (selected != null && panelRect.Contains(g)) || (state == State.Ready && startBtnRect.Contains(g));
-        if (!overUI && allowedTowers.Count > 0 && Camera.main != null)
+        bool overUI = (selected != null && panelRect.Contains(g)) || (state == State.Ready && startBtnRect.Contains(g)) || paletteRect.Contains(g);
+        if (!overUI && buildTower != null && Camera.main != null)   // 건설 모드에서만 슬롯 호버 미리보기
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 500f))
@@ -284,7 +301,7 @@ public class GameManager : MonoBehaviour
                 if (slot != null && !slot.Occupied)
                 {
                     hoveredSlot = slot;
-                    previewRing.ShowAt(slot.transform.position, allowedTowers[0].range);
+                    previewRing.ShowAt(slot.transform.position, buildTower.range);
                     return;
                 }
             }
@@ -307,18 +324,21 @@ public class GameManager : MonoBehaviour
 
             if (slot != null && !slot.Occupied)
             {
-                Deselect();
-                if (allowedTowers.Count == 1) TryBuild(allowedTowers[0], slot);
-                else { pendingSlot = slot; Tower.Audio.Sfx.I?.Play("click1", 0.6f); }
+                selected = null; selRing.Hide();
+                // (신) 건설 모드면 고른 타워 설치(설치 후 모드 유지 = 연속 설치). 아니면 먼저 팔레트에서 고르라 안내.
+                if (buildTower != null) TryBuild(buildTower, slot);
+                else { hintText = "아래에서 포탑을 먼저 고르세요."; hintUntil = Time.time + 2f; Tower.Audio.Sfx.I?.Play("error_002", 0.4f); }
                 return;
             }
         }
-        Deselect();   // 빈 곳 클릭 → 해제
+        Deselect();              // 빈 곳 클릭 → 선택 해제
+        buildTower = null;       // + 건설 모드 해제
+        previewRing.Hide();
     }
 
     void Select(TowerUnit t)
     {
-        selected = t; pendingSlot = null;
+        selected = t; pendingSlot = null; buildTower = null; previewRing.Hide();
         selRing.ShowAt(t.transform.position, t.Range);
         Tower.Audio.Sfx.I?.Play("click1", 0.6f);
     }
@@ -500,15 +520,81 @@ public class GameManager : MonoBehaviour
 
             DrawGuidance(label);
             DrawUpgradeIndicators();
+            DrawBuildableSlots();                 // (신) 건설 모드: 빈 슬롯마다 (+) — 어디 짓는지 표시
             DrawFloatingTexts();
             DrawHoverTooltip(label);
-            DrawBuildMenu(label, btn);
+            // DrawBuildMenu(label, btn);          // (구) 슬롯 위 팝업 메뉴 → 하단 팔레트로 대체. 코드 보존.
+            DrawBuildPalette(label, btn);         // (신) 하단 건설 팔레트(타워 카드 선택)
             DrawTowerPanel(label, btn);
             DrawHint(label);
             DrawVignette();
+            DrawWavePreview(label);               // (신) 다음 웨이브 미리보기
+            DrawFirstHelp(big, label, btn);       // (신) 첫 진입 안내 오버레이
             DrawEndScreen(big, btn);
         }
         catch (System.Exception ex) { if (!_dbgGui) { _dbgGui = true; Debug.LogError("[OnGUI-ERR] ps=" + _ps + " : " + ex.Message); } }
+    }
+
+    // (신) 하단 건설 팔레트 — 타워 카드. 클릭 시 건설 모드 토글(다시 누르면 취소).
+    void DrawBuildPalette(GUIStyle label, GUIStyle btn)
+    {
+        int n = allowedTowers.Count;
+        if (n == 0 || state == State.Won || state == State.Lost) { paletteRect = new Rect(-1, -1, 0, 0); return; }
+
+        float cardW = 168, cardH = 70, gap = 10, pad = 8;
+        float totalW = n * cardW + (n - 1) * gap;
+        float x0 = Mathf.Max(pad, (Screen.width - totalW) / 2f);
+        float y = Screen.height - cardH - 14;
+        paletteRect = new Rect(x0 - pad, y - pad, totalW + pad * 2, cardH + pad * 2);
+
+        var _bg = GUI.color;
+        GUI.color = new Color(0.08f, 0.10f, 0.14f, 0.86f);
+        GUI.DrawTexture(paletteRect, Texture2D.whiteTexture);
+        GUI.color = _bg;
+
+        var cardStyle = new GUIStyle(btn) { fontSize = 15, alignment = TextAnchor.MiddleCenter };
+        if (uiFont != null) cardStyle.font = uiFont;
+
+        for (int i = 0; i < n; i++)
+        {
+            var d = allowedTowers[i];
+            var r = new Rect(x0 + i * (cardW + gap), y, cardW, cardH);
+            bool afford = gold >= d.cost;
+            bool active = buildTower == d;
+
+            if (active)   // 선택 강조 테두리(시안)
+            {
+                var _c = GUI.color; GUI.color = new Color(0.25f, 0.85f, 1f, 0.95f);
+                GUI.DrawTexture(new Rect(r.x - 3, r.y - 3, r.width + 6, r.height + 6), Texture2D.whiteTexture);
+                GUI.color = _c;
+            }
+
+            GUI.enabled = afford;
+            if (GUI.Button(r, $"{d.displayName}  {d.cost}G\n{d.desc}", cardStyle))
+            {
+                buildTower = (buildTower == d) ? null : d;   // 토글
+                selected = null; selRing.Hide(); previewRing.Hide();
+                Tower.Audio.Sfx.I?.Play("click1", 0.6f);
+            }
+            GUI.enabled = true;
+        }
+    }
+
+    // (신) 건설 모드에서 빈 슬롯마다 (+) 아이콘(카메라 각도 무관, 펄스). "어디 지을 수 있는지" 한눈에.
+    void DrawBuildableSlots()
+    {
+        if (buildTower == null || Camera.main == null) return;
+        float a = 0.55f + 0.45f * Mathf.PingPong(Time.time * 2.2f, 1f);
+        var st = new GUIStyle { fontSize = 34, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter };
+        if (uiFont != null) st.font = uiFont;
+        st.normal.textColor = new Color(0.22f, 0.80f, 1f, a);
+        foreach (var s in slots)
+        {
+            if (s == null || s.Occupied) continue;
+            Vector3 sp = Camera.main.WorldToScreenPoint(s.transform.position + Vector3.up * (cell * 0.35f));
+            if (sp.z < 0) continue;
+            GUI.Label(new Rect(sp.x - 24, Screen.height - sp.y - 24, 48, 48), "+", st);
+        }
     }
 
     void DrawBuildMenu(GUIStyle label, GUIStyle btn)
@@ -550,7 +636,8 @@ public class GameManager : MonoBehaviour
     {
         if (state == State.Won || state == State.Lost) return;
         string guide;
-        if (state == State.InWave) guide = "적을 막으세요!  포탑을 클릭하면 강화할 수 있어요.";
+        if (buildTower != null) guide = $"반짝이는 칸(+)을 눌러 {buildTower.displayName} 설치 · 빈 곳을 누르면 취소";
+        else if (state == State.InWave) guide = "적을 막으세요!  포탑을 클릭하면 강화할 수 있어요.";
         else
         {
             bool hasTower = false, canUp = false;
@@ -695,6 +782,63 @@ public class GameManager : MonoBehaviour
         GUI.DrawTexture(new Rect(0, 0, t, Screen.height), Texture2D.whiteTexture);
         GUI.DrawTexture(new Rect(Screen.width - t, 0, t, Screen.height), Texture2D.whiteTexture);
         GUI.color = c;
+    }
+
+    // (신) 다음 웨이브 미리보기 — 우측, Ready 상태에서 적 종류×수량.
+    void DrawWavePreview(GUIStyle label)
+    {
+        if (stage == null || state != State.Ready || waveIndex >= stage.waves.Count) return;
+        var wv = stage.waves[waveIndex];
+        var seen = new List<string>(); var cnt = new List<int>();
+        foreach (var g in wv.groups)
+        {
+            int idx = seen.IndexOf(g.enemyId);
+            if (idx < 0) { seen.Add(g.enemyId); cnt.Add(g.count); }
+            else cnt[idx] += g.count;
+        }
+        if (seen.Count == 0) return;
+        float w = 196, h = 34 + seen.Count * 22;
+        var r = new Rect(Screen.width - w - 12, 66, w, h);
+        var c = GUI.color; GUI.color = new Color(0.08f, 0.10f, 0.14f, 0.86f);
+        GUI.DrawTexture(r, Texture2D.whiteTexture); GUI.color = c;
+        var head = new GUIStyle(label) { fontSize = 14, fontStyle = FontStyle.Bold };
+        head.normal.textColor = new Color(1f, 0.85f, 0.4f);
+        GUI.Label(new Rect(r.x + 10, r.y + 6, w - 16, 20), $"다음 웨이브  {waveIndex + 1}/{stage.waves.Count}", head);
+        var body = new GUIStyle(label) { fontSize = 13 };
+        body.normal.textColor = Color.white;
+        for (int i = 0; i < seen.Count; i++)
+        {
+            var ed = db?.Enemy(seen[i]);
+            string nm = ed != null ? ed.displayName : seen[i];
+            GUI.Label(new Rect(r.x + 12, r.y + 28 + i * 22, w - 18, 20), $"{nm}  x{cnt[i]}", body);
+        }
+    }
+
+    // (신) 첫 진입 도움말 오버레이 — 조작·상성 1장 안내. [시작하기]로 닫음.
+    void DrawFirstHelp(GUIStyle big, GUIStyle label, GUIStyle btn)
+    {
+        if (helpDismissed || waveIndex != 0 || state != State.Ready) return;
+        var c = GUI.color;
+        GUI.color = new Color(0, 0, 0, 0.72f);
+        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
+        float w = 470, h = 320;
+        var box = new Rect((Screen.width - w) / 2, (Screen.height - h) / 2, w, h);
+        GUI.color = new Color(0.10f, 0.12f, 0.16f, 0.98f);
+        GUI.DrawTexture(box, Texture2D.whiteTexture);
+        GUI.color = c;
+        var title = new GUIStyle(big) { fontSize = 26 };
+        GUI.Label(new Rect(box.x, box.y + 16, w, 38), "외계 침공 방어!", title);
+        var body = new GUIStyle(label) { fontSize = 16, alignment = TextAnchor.UpperLeft, wordWrap = true };
+        body.normal.textColor = new Color(1f, 1f, 1f, 0.95f);
+        GUI.Label(new Rect(box.x + 30, box.y + 64, w - 60, 184),
+            "적이 길을 따라 기지로 쳐들어옵니다.\n\n" +
+            "1.  아래에서 포탑을 고르세요\n" +
+            "2.  반짝이는 (+) 칸을 눌러 설치\n" +
+            "3.  [웨이브 시작]으로 막으세요\n\n" +
+            "· 포탑을 클릭하면 업그레이드 / 판매\n" +
+            "· 광역=군집,  둔화=고속,  대공=비행 에 강해요", body);
+        if (GUI.Button(new Rect(box.x + w / 2 - 85, box.y + h - 56, 170, 42), "시작하기", btn))
+        { helpDismissed = true; Tower.Audio.Sfx.I?.Play("confirmation_001", 0.7f); }
     }
 
     void DrawEndScreen(GUIStyle big, GUIStyle btn)

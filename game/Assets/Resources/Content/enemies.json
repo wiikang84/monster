@@ -9,6 +9,8 @@
     { "id":"ufo_tank",  "displayName":"수송선",     "model":"enemy-ufo-c",
       "scale":1.35,"tint":"#8E5BD0", "hp":220, "speed":1.0, "reward":28, "livesCost":2, "tags":[], "resist":0 },
     { "id":"ufo_armor", "displayName":"장갑정",     "model":"enemy-ufo-c",
-      "scale":1.15,"tint":"#9AA0A6", "hp":120, "speed":1.1, "reward":24, "livesCost":2, "tags":["armored"], "resist":6 }
+      "scale":1.15,"tint":"#9AA0A6", "hp":120, "speed":1.1, "reward":24, "livesCost":2, "tags":["armored"], "resist":6 },
+    { "id":"ufo_glider", "displayName":"활공기",    "model":"enemy-ufo-d",
+      "scale":1.1, "tint":"#7EC8FF", "hp":70,  "speed":1.8, "reward":18, "livesCost":1, "tags":["flying"], "resist":0 }
   ]
 }

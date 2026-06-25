@@ -73,6 +73,8 @@ tower/
 - 2026-06-23: **친절 UX + 그래픽 폴리시.** 모든 스테이지 3종 타워 선택(빌드 메뉴 카드+설명+사거리 미리보기), PC 호버 미리보기 링, 업그레이드 발견성(⬆ 표식·상시 가이드 문구·첫설치 힌트), 호버 툴팁. 그래픽: 소프트 그림자·따뜻한 조명·삼색 환경광·안개·MSAA·환경 장식(나무/바위/크리스탈 산점). ⚠️ 그래픽 한계 명시: 무료 Kenney 저폴리 톤은 유지(커스텀 3D 불가).
 - 라이브: https://wiitower.web.app (재배포: cd tower; npx firebase-tools deploy --only hosting --project wiigame-448c7)
 - ⚠️ WebGL 함정: OnGUI에서 `GUI.skin.font`/`GUI.skin.box` 직접 사용 시 NRE → 폰트는 개별 GUIStyle에, 패널 배경은 DrawTexture로. JSON은 JsonUtility(Newtonsoft 금지, +21MB).
+- 2026-06-25: **"게임답게" 4종 개편 + 배포.** 오너 피드백("유닛 선택 안 됨·너무 쉬움·불친절") 대응. ①건설 팔레트(하단 카드 선택→건설모드)+빈 슬롯 펄스/(+)아이콘 표시 ②타워4종(대공포 flak 추가)+적 비행(활공기)+태그 상성(비행 splash½·대공 flying×2) ③사거리 축소(arrow7→4.5·cannon6.5→4·frost7→5·flak5.5)로 전략성 ④첫 진입 안내 오버레이+다음 웨이브 미리보기. 빌드 EXIT0, wiitower.web.app 배포 완료. 수정파일: GameManager/Enemy/Projectile/TowerUnit/TowerDef.cs + towers/enemies/stage_01~03.json. (※pylon 지원타워·보스·스테이지4~15·튜토 스텝게이팅은 다음 묶음)
+- ⚠️ 빌드/배포 환경: Unity=`C:\Program Files\Unity\Hub\Editor\6000.0.58f1\Editor\Unity.exe`. 배포는 PowerShell에서 `$env:Path="C:\Program Files\nodejs;"+$env:Path` 후 `& "$env:APPDATA\npm\firebase.cmd" deploy --only hosting --project wiigame-448c7` (Bash엔 npx 없음, firebase.cmd가 node를 PATH에서 찾음).
 
 ## 작업 규칙
 - 코드 우선(code-first): 런타임 C#로 구성해 에디터 수작업 최소화.

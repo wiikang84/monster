@@ -16,7 +16,7 @@
   "startGold": 150,
   "startLives": 12,
   "autoNextWave": false,
-  "allowedTowers": ["arrow", "cannon", "frost"],
+  "allowedTowers": ["arrow", "cannon", "frost", "flak"],
   "starThresholds": [70, 100],
   "tutorialId": "slow_intro",
   "waves": [
@@ -34,6 +34,7 @@
     { "restBefore": 10, "groups": [
       { "enemyId": "ufo_tank",  "count": 2, "interval": 2.0, "startDelay": 0, "pathIndex": 0 },
       { "enemyId": "ufo_armor", "count": 3, "interval": 1.4, "startDelay": 3, "pathIndex": 0 },
-      { "enemyId": "ufo_fast",  "count": 6, "interval": 0.5, "startDelay": 7, "pathIndex": 0 } ] }
+      { "enemyId": "ufo_glider","count": 5, "interval": 0.8, "startDelay": 6, "pathIndex": 0 },
+      { "enemyId": "ufo_fast",  "count": 6, "interval": 0.5, "startDelay": 9, "pathIndex": 0 } ] }
   ]
 }

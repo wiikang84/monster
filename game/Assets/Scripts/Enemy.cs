@@ -9,6 +9,10 @@ public class Enemy : MonoBehaviour
     float baseSpeed;          // 월드유닛/초 (cell 반영 완료)
     public int Hp, MaxHp, Reward, LivesCost, Resist;
     public string DefId;
+    public List<string> Tags;          // fast/swarm/armored/flying
+    public bool IsFlying;
+    float flyHeight;
+    public bool Has(string t) => Tags != null && Tags.Contains(t);
 
     int wp = 1;
     bool done = false;
@@ -31,6 +35,9 @@ public class Enemy : MonoBehaviour
         baseSpeed = def.speed * cell;
         Reward = def.reward; LivesCost = def.livesCost; Resist = def.resist;
         DefId = def.id;
+        Tags = def.tags;
+        IsFlying = def.Has("flying");
+        flyHeight = IsFlying ? cell * 0.9f : 0f;   // 비행 적은 경로 위로 띄움
 
         if (def.scale > 0f && Mathf.Abs(def.scale - 1f) > 0.01f)
             transform.localScale *= def.scale;
@@ -67,6 +74,7 @@ public class Enemy : MonoBehaviour
         if (wp >= pts.Count) { Reach(); return; }
 
         Vector3 target = pts[wp];
+        target.y += flyHeight;                       // 비행: 공중 경로
         transform.position = Vector3.MoveTowards(transform.position, target, Speed * Time.deltaTime);
         if ((transform.position - target).sqrMagnitude < 0.01f)
         {

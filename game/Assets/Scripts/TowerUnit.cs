@@ -16,6 +16,7 @@ public class TowerUnit : MonoBehaviour
     public DamageType DType;
     public float SplashRadius, SplashFalloff, SlowFactor, SlowDuration;
     public float CritChance;
+    public string BonusTag; public float BonusMult = 1f;   // 태그 보너스(대공 등)
 
     public Transform weapon;
     public TowerSlot Slot;     // 설치된 슬롯(판매 시 해제용)
@@ -39,6 +40,8 @@ public class TowerUnit : MonoBehaviour
         Targeting = def.TargetingEnum;
         projectileModel = def.projectileModel;
         CritChance = 0f;
+        BonusTag = string.IsNullOrEmpty(def.bonusTag) ? null : def.bonusTag;
+        BonusMult = def.bonusMult <= 0f ? 1f : def.bonusMult;
     }
 
     public bool CanUpgrade => Def != null && Def.upgrades != null && (Tier - 1) < Def.upgrades.Count;
@@ -137,7 +140,7 @@ public class TowerUnit : MonoBehaviour
         bool crit = CritChance > 0f && Random.value < CritChance;
         int dmg = crit ? Damage * 2 : Damage;
         var p = go.AddComponent<Projectile>();
-        p.Init(gm, target, ProjectileSpeed, dmg, crit, DType, SplashRadius, SplashFalloff, SlowFactor, SlowDuration);
+        p.Init(gm, target, ProjectileSpeed, dmg, crit, DType, SplashRadius, SplashFalloff, SlowFactor, SlowDuration, BonusTag, BonusMult);
         if (Def != null) Tower.Audio.Sfx.I?.Play(Def.shootSound, 0.5f, 0.06f);
     }
 }

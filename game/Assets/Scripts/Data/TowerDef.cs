@@ -30,6 +30,8 @@ namespace Tower.Data
         public float slowFactor;      // 0~1 (Slow 타입에서 속도 배수 감소량)
         public float slowDuration = 2f;
         public float dotDps;
+        public string bonusTag;       // 이 태그를 가진 적에게 데미지 보너스(예: "flying")
+        public float bonusMult = 1f;  // 보너스 배수(예: 2.0 = 2배)
         public string tint;           // 타워 색 틴트(#RRGGBB), 없으면 기본
 
         // 타깃 선택 정책 (JSON 문자열: "Nearest"/"First"/"MaxHp"/"MinHp")
